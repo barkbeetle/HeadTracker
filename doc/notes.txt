@@ -1,3 +1,4 @@
 RawImageReader: http://fiji.sc/javadoc/com/sun/media/imageioimpl/plugins/raw/RawImageReader.html
 
 
+http://osama-oransa.blogspot.com/2010/12/capture-photo-from-web-cam-usb-cam.html
