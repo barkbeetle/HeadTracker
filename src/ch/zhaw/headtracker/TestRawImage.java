@@ -1,58 +1,35 @@
 package ch.zhaw.headtracker;
 
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGImageDecoder;
-
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.Raster;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URL;
 
-public class TestRawImage extends JPanel
+public final class TestRawImage extends JPanel
 {
-	BufferedImage img = null;
+	private BufferedImage img = null;
 
-	public TestRawImage()
-	{
+	public TestRawImage(int width, int height) {
 		JFrame frame = new JFrame("TestRawImage");
 		frame.setLocation(200, 200);
-		frame.setSize(500, 300);
-
-
-		try
-		{
-			FileInputStream fis = new FileInputStream("simons-cat.jpg");
-			BufferedInputStream bis = new BufferedInputStream(fis);
-			JPEGImageDecoder jpegImageDecoder = JPEGCodec.createJPEGDecoder(bis);
-			img = jpegImageDecoder.decodeAsBufferedImage();
-			fis.close();
-		}
-		catch (Exception e)
-		{
-			throw new RuntimeException(e);
-		}
+		frame.setSize(width, height);
 
 		frame.add(this);
 		frame.setVisible(true);
-
-
+	}
+	
+	public void setImage(final BufferedImage image) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				img = image;
+				repaint();
+			}
+		});
 	}
 
-	public synchronized void setImage(BufferedImage img)
-	{
-		this.img = img;
-	}
-
-	public synchronized void paintComponent(Graphics g)
-	{
-		super.paintComponent(g);
-		this.setBackground(Color.WHITE);
+	@Override
+	public void paint(Graphics g) {
+		setBackground(Color.WHITE);
 
 		if (img != null)
 		{
@@ -62,6 +39,6 @@ public class TestRawImage extends JPanel
 
 	public static void main(String args[])
 	{
-		new TestRawImage();
+		new TestRawImage(300, 200);
 	}
 }
