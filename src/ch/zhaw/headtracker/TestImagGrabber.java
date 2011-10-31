@@ -16,7 +16,7 @@ public class TestImagGrabber {
 
 	@SuppressWarnings({ "SocketOpenedButNotSafelyClosed" })
 	private static void test() throws IOException {
-		final ImageGrabber grabber = RawInputStreamImageGrabber.fromSocketAddress("10.0.0.3", (short) 9999, 752, 480);
+		final ImageGrabber grabber = RawInputStreamImageGrabber.fromSocketAddress("10.0.0.3", (short) 9999, 10000, 752, 480);
 		final ImageView view = new ImageView(752, 480);
 		
 		Thread thread = new Thread(new Runnable() {

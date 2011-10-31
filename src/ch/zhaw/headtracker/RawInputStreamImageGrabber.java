@@ -1,7 +1,6 @@
 package ch.zhaw.headtracker;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.*;
 
 public final class RawInputStreamImageGrabber implements ImageGrabber {
@@ -21,8 +20,15 @@ public final class RawInputStreamImageGrabber implements ImageGrabber {
 	}
 	
 	@SuppressWarnings({ "SocketOpenedButNotSafelyClosed" })
-	public static ImageGrabber fromSocketAddress(String address, short port, int width, int height) throws IOException {
+	public static ImageGrabber fromSocketAddress(String address, short port, int exposureTimeMicroseconds, int width, int height) throws IOException {
 		Socket socket = new Socket(InetAddress.getByName(address), port);
+
+		PrintStream output = new PrintStream(socket.getOutputStream());
+		
+		// Sent to the leanXcam to set exposure time
+		output.println(exposureTimeMicroseconds);
+		output.flush();
+		socket.getOutputStream().flush();
 		
 		return new RawInputStreamImageGrabber(socket.getInputStream(), width, height);
 	}
