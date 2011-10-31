@@ -1,7 +1,6 @@
 package ch.zhaw.headtracker;
 
-import java.awt.Frame;
-import java.awt.Graphics;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.*;
@@ -17,7 +16,7 @@ public final class ImageView {
 		this.width = width;
 		this.height = height;
 		bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
-		
+
 		frame = new Frame("") {
 			@Override
 			public void paint(Graphics g) {
@@ -36,24 +35,17 @@ public final class ImageView {
 		frame.setSize(width, height);
 		frame.setVisible(true);
 	}
-	
-	public void updateImage(final Image image) {
-	//	byte[] data = image.getData();
-	//	DataBufferByte buffer = new DataBufferByte(data, data.length);
-	//	WritableRaster raster = Raster.createWritableRaster(new SinglePixelPackedSampleModel(DataBuffer.TYPE_BYTE, ), );
 
+	public void updateImage(final Image image) {
 		assert image.width == width && image.height == height;
-		
+
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				for (int iy = 0; iy < height; iy += 1) {
-					for (int ix = 0; ix < width; ix += 1) {
-						int pixel = image.getPixel(ix, iy);
-
-						bufferedImage.setRGB(ix, iy, (pixel & 0xff) << 16 | (pixel & 0xff) << 8 | (pixel & 0xff));
-					}
-				}
+				DataBufferByte buffer = new DataBufferByte(image.getData(), image.getData().length);
+				WritableRaster raster = Raster.createInterleavedRaster(buffer, width, height, width, 1, new int[] { 0 }, new Point());
+				
+				bufferedImage.setData(raster);
 
 				frame.repaint();
 			}
