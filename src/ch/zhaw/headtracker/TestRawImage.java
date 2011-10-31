@@ -33,7 +33,7 @@ public final class TestRawImage extends JPanel
 
 		if (img != null)
 		{
-			g.drawImage(img, 0, 0, img.getWidth(), img.getHeight(), Color.BLACK, null);
+			g.drawImage(img, 0, 0, null);
 		}
 	}
 
