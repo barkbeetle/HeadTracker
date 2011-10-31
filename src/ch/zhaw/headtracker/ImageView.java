@@ -29,6 +29,9 @@ public final class ImageView {
 			public void windowClosing(WindowEvent e) {
 				frame.setVisible(false);
 				frame.dispose();
+				
+				// Hack, application doesn't quit on last window close
+				System.exit(0);
 			}
 		});
 
