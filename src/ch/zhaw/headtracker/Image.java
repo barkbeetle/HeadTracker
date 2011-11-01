@@ -67,6 +67,13 @@ public final class Image {
 			}
 		}
 	}
+
+	// Set pixels below threshold to black and the other pixels to white
+	public void threshold(int threshold) {
+		for (int iy = 0; iy < height; iy += 1)
+			for (int ix = 0; ix < width; ix += 1)
+				setPixel(ix, iy, getPixel(ix, iy) < threshold ? 0 : 0xff);
+	}
 	
 	// Return a copy of the image shrinked by factor
 	public Image shrink(int factor) {
