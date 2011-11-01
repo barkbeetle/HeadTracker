@@ -1,6 +1,8 @@
-package ch.zhaw.headtracker.image;
+package ch.zhaw.headtracker;
 
 import ch.zhaw.headtracker.Algorithm;
+import ch.zhaw.headtracker.image.ImageGrabber;
+import ch.zhaw.headtracker.image.InputStreamImageGrabber;
 import java.io.IOException;
 
 public class SocketInputMain {
