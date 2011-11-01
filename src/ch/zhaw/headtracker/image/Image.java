@@ -86,6 +86,30 @@ public final class Image {
 		}
 	}
 
+	public void multiply(Image other) {
+		assert other.height == height && other.width == width;
+
+		for(int y = 0; y < height; y += 1)
+			for(int x = 0; x < width; x += 1)
+				setPixel(x, y, getPixel(x, y) * other.getPixel(x, y) / 0xff);
+	}
+
+	public void bitAnd(Image other) {
+		assert other.height == height && other.width == width;
+
+		for(int y = 0; y < height; y += 1)
+			for(int x = 0; x < width; x += 1)
+				setPixel(x, y, getPixel(x, y) & other.getPixel(x, y));
+	}
+
+	public void bitOr(Image other) {
+		assert other.height == height && other.width == width;
+
+		for(int y = 0; y < height; y += 1)
+			for(int x = 0; x < width; x += 1)
+				setPixel(x, y, getPixel(x, y) | other.getPixel(x, y));
+	}
+
 	// Set pixels below threshold to black and the other pixels to white
 	public void threshold(int threshold) {
 		for (int iy = 0; iy < height; iy += 1)
