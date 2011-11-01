@@ -8,7 +8,7 @@ public final class Image {
 	private final byte[] pixels;
 	public final int width;
 	public final int height;
-
+	
 	private Image(byte[] pixels, int width, int height) {
 		this.pixels = pixels;
 		this.width = width;
@@ -17,6 +17,10 @@ public final class Image {
 
 	public Image(int width, int height) {
 		this(new byte[width * height], width, height);
+	}
+	
+	public Image(Image image) {
+		this(image.getData(), image.width, image.height);
 	}
 	
 	public int getPixel(int x, int y) {
@@ -50,7 +54,21 @@ public final class Image {
 			}
 		}
 	}
+
+	// Add pixel values of other to this image's values
+	public void add(Image other) {
+		assert other.height == height && other.width == width;
+
+		for (int iy = 0; iy < height; iy += 1) {
+			for (int ix = 0; ix < width; ix += 1) {
+				int pixel = getPixel(ix, iy) + other.getPixel(ix, iy);
+
+				setPixel(ix, iy, (byte) (pixel > 0xff ? 0xff : pixel));
+			}
+		}
+	}
 	
+	// Return a copy of the image shrinked by factor
 	public Image shrink(int factor) {
 		Image image = new Image(width / factor, height / factor);
 
@@ -69,6 +87,7 @@ public final class Image {
 		return image;
 	}
 	
+	@SuppressWarnings({ "InstanceVariableUsedBeforeInitialized" })
 	public byte[] getData() {
 		return Arrays.copyOf(pixels, pixels.length);
 	}
