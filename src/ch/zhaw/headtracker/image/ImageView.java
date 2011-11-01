@@ -1,4 +1,4 @@
-package ch.zhaw.headtracker;
+package ch.zhaw.headtracker.image;
 
 import java.awt.*;
 import java.awt.event.WindowAdapter;
@@ -24,7 +24,7 @@ public final class ImageView {
 
 				g.drawImage(bufferedImage, 0, 0, width, height, null);
 
-				g2.setTransform(AffineTransform.getScaleInstance((double) width / bufferedImage.getWidth(), (double) height / bufferedImage.getHeight()));
+				g2.setTransform(AffineTransform.getScaleInstance((double) frame.getWidth() / bufferedImage.getWidth(), (double) height / bufferedImage.getHeight()));
 				
 				currentPainter.draw((Graphics2D) g);
 			}
@@ -59,7 +59,7 @@ public final class ImageView {
 	public abstract static class Painter {
 		public final BufferedImage bufferedImage;
 
-		protected Painter(Image image) {
+		protected Painter(ch.zhaw.headtracker.image.Image image) {
 			byte[] data = image.getData();
 			int width = image.width;
 			int height = image.height;

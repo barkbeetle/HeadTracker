@@ -1,4 +1,4 @@
-package ch.zhaw.headtracker;
+package ch.zhaw.headtracker.image;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,10 +22,24 @@ public final class Image {
 	public Image(Image image) {
 		this(image.getData(), image.width, image.height);
 	}
-	
+
 	public int getPixel(int x, int y) {
 		assert 0 <= x && x < width && 0 <= y && y < height;
-		
+
+		return pixels[width * y + x] & 0xff;
+	}
+
+	public int getPixelRepeatEdgeValues(int x, int y) {
+		if (x < 0)
+			x = 0;
+		else if (x > width - 1)
+			x = width - 1;
+	
+		if (y < 0)
+			y = 0;
+		else if (y > height - 1)
+			y = height - 1;
+	
 		return pixels[width * y + x] & 0xff;
 	}
 	
@@ -74,6 +88,22 @@ public final class Image {
 			for (int ix = 0; ix < width; ix += 1)
 				setPixel(ix, iy, getPixel(ix, iy) < threshold ? 0 : 0xff);
 	}
+
+	// Enlarge dark parts by radius
+	//public void dialte(int radius) {
+	//	Image tempImage = new Image(width, height);
+	//
+	//	for (int iy = 0; iy < height; iy += 1) {
+	//		for (int ix = 0; ix < width; ix += 1) {
+	//			int pixel = 0xff;
+	//
+	//			for (int ix2 = 0; ix2 < width; ix2 += 1)
+	//				pixel = Math.min(pixel, getPixel())
+	//
+	//			setPixel(ix2, iy2, getPixel(ix2, iy2) < threshold ? 0 : 0xff);
+	//		}
+	//	}
+	//}
 	
 	// Return a copy of the image shrinked by factor
 	public Image shrink(int factor) {

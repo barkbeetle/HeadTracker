@@ -1,4 +1,4 @@
-package ch.zhaw.headtracker;
+package ch.zhaw.headtracker.image;
 
 import java.io.IOException;
 

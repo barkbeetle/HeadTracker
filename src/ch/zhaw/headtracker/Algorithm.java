@@ -1,38 +1,25 @@
 package ch.zhaw.headtracker;
 
+import ch.zhaw.headtracker.image.*;
 import java.awt.Graphics2D;
-import java.io.IOException;
 
-public class TestImagGrabber {
-	public static final int FILTER_THRESHOLD = 10;
-
-	private TestImagGrabber() {
+public class Algorithm {
+	private Algorithm() {
 	}
 
-	public static void main(String[] args) {
-		try {
-			test();
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
-	}
-
-	@SuppressWarnings({ "SocketOpenedButNotSafelyClosed" })
-	private static void test() throws IOException {
-		final ImageGrabber grabber = RawInputStreamImageGrabber.fromSocketAddress("10.0.0.3", (short) 9999, 40000, 752, 480);
+	public static final int filterThreshold = 10;
+	
+	public static void run(final ImageGrabber grabber) {
 		final ImageView view = new ImageView(752, 480);
-		
+
 		Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-
-
-
 					Image background = grabber.getImage().shrink(2);
 
-
 					while (true) {
+						Thread.sleep(100);
 
 						Image image = grabber.getImage().shrink(2);
 
@@ -41,7 +28,7 @@ public class TestImagGrabber {
 								int bgPixel = background.getPixel(x, y);
 								int imgPixel = image.getPixel(x, y);
 
-								if(Math.abs(bgPixel - imgPixel) < FILTER_THRESHOLD)
+								if(Math.abs(bgPixel - imgPixel) < filterThreshold)
 									image.setPixel(x, y, 255);
 							}
 						}
@@ -57,7 +44,7 @@ public class TestImagGrabber {
 				}
 			}
 		});
-		
+
 		thread.setDaemon(true);
 		thread.start();
 	}
