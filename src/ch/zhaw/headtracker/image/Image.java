@@ -49,6 +49,10 @@ public final class Image {
 
 		pixels[width * y + x] = (byte) value;
 	}
+
+	public void setPixel(int x, int y, boolean value) {
+		setPixel(x, y, value ? 0xff : 0);
+	}
 	
 	public void invert() {
 		for (int iy = 0; iy < height; iy += 1)
@@ -89,21 +93,32 @@ public final class Image {
 				setPixel(ix, iy, getPixel(ix, iy) < threshold ? 0 : 0xff);
 	}
 
-	// Enlarge dark parts by radius
-	//public void dialte(int radius) {
-	//	Image tempImage = new Image(width, height);
-	//
-	//	for (int iy = 0; iy < height; iy += 1) {
-	//		for (int ix = 0; ix < width; ix += 1) {
-	//			int pixel = 0xff;
-	//
-	//			for (int ix2 = 0; ix2 < width; ix2 += 1)
-	//				pixel = Math.min(pixel, getPixel())
-	//
-	//			setPixel(ix2, iy2, getPixel(ix2, iy2) < threshold ? 0 : 0xff);
-	//		}
-	//	}
-	//}
+	// Enlarge bright parts by radius
+	public void grow(int radius) {
+		Image tempImage = new Image(width, height);
+
+		for (int iy = 0; iy < height; iy += 1) {
+			for (int ix = 0; ix < width; ix += 1) {
+				int pixel = 0;
+
+				for (int ir = -radius; ir < radius; ir += 1)
+					pixel = Math.max(pixel, getPixelRepeatEdgeValues(ix + ir, iy));
+
+				tempImage.setPixel(ix, iy, pixel);
+			}
+		}
+
+		for (int iy = 0; iy < height; iy += 1) {
+			for (int ix = 0; ix < width; ix += 1) {
+				int pixel = 0;
+
+				for (int ir = -radius; ir < radius; ir += 1)
+					pixel = Math.max(pixel, tempImage.getPixelRepeatEdgeValues(ix, iy + ir));
+
+				setPixel(ix, iy, pixel);
+			}
+		}
+	}
 	
 	// Return a copy of the image shrinked by factor
 	public Image shrink(int factor) {
@@ -128,7 +143,7 @@ public final class Image {
 	public byte[] getData() {
 		return Arrays.copyOf(pixels, pixels.length);
 	}
-	
+
 	public static Image readFromStream(InputStream input, int width, int height) throws IOException {
 		int pos = 0;
 		byte[] pixels = new byte[width * height];

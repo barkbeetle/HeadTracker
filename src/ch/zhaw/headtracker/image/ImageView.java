@@ -60,7 +60,7 @@ public final class ImageView {
 	public abstract static class Painter {
 		public final BufferedImage bufferedImage;
 
-		protected Painter(ch.zhaw.headtracker.image.Image image) {
+		protected Painter(Image image) {
 			byte[] data = image.getData();
 			int width = image.width;
 			int height = image.height;
