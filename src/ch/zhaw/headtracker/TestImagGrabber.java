@@ -1,5 +1,6 @@
 package ch.zhaw.headtracker;
 
+import java.awt.Graphics2D;
 import java.io.IOException;
 
 public class TestImagGrabber {
@@ -23,14 +24,18 @@ public class TestImagGrabber {
 			@Override
 			public void run() {
 				try {
-					Image background = grabber.getImage();
+					Image background = grabber.getImage().shrink(2);
 					
 					while (true) {
-						Image image = grabber.getImage();
+						Image image = grabber.getImage().shrink(2);
 						
 						image.subtract(background);
 						
-						view.updateImage(image);
+						view.update(new ImageView.Painter(image) {
+							@Override
+							public void draw(Graphics2D graphics) {
+							}
+						});
 					}
 				} catch (Throwable e) {
 					e.printStackTrace();
