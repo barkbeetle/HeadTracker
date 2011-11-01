@@ -19,16 +19,54 @@ public final class Image {
 		this(new byte[width * height], width, height);
 	}
 	
-	public byte getPixel(int x, int y) {
+	public int getPixel(int x, int y) {
 		assert 0 <= x && x < width && 0 <= y && y < height;
 		
-		return pixels[width * y + x];
+		return pixels[width * y + x] & 0xff;
 	}
 	
-	public void setPixel(int x, int y, byte value) {
+	public void setPixel(int x, int y, int value) {
 		assert 0 <= x && x < width && 0 <= y && y < height;
+		assert 0 <= value && value <= 0xff;
 
-		pixels[width * y + x] = value;
+		pixels[width * y + x] = (byte) value;
+	}
+	
+	public void invert() {
+		for (int iy = 0; iy < height; iy += 1)
+			for (int ix = 0; ix < width; ix += 1)
+				setPixel(ix, iy, (byte) ~getPixel(ix, iy));
+	}
+	
+	// Subtract pixel values of other from this image's values
+	public void subtract(Image other) {
+		assert other.height == height && other.width == width;
+
+		for (int iy = 0; iy < height; iy += 1) {
+			for (int ix = 0; ix < width; ix += 1) {
+				int pixel = getPixel(ix, iy) - other.getPixel(ix, iy);
+				
+				setPixel(ix, iy, (byte) (pixel < 0 ? 0 : pixel));
+			}
+		}
+	}
+	
+	public Image shrink(int factor) {
+		Image image = new Image(width / factor, height / factor);
+
+		for (int iy = 0; iy < image.height; iy += 1) {
+			for (int ix = 0; ix < image.width; ix += 1) {
+				int pixel = 0;
+
+				for (int iy2 = 0; iy2 < factor; iy2 += 1)
+					for (int ix2 = 0; ix2 < factor; ix2 += 1)
+						pixel += getPixel(ix + ix2, iy + iy2);
+				
+				image.setPixel(ix, iy, pixel / (factor * factor));
+			}
+		}
+		
+		return image;
 	}
 	
 	public byte[] getData() {

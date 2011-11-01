@@ -23,8 +23,14 @@ public class TestImagGrabber {
 			@Override
 			public void run() {
 				try {
+					Image background = grabber.getImage();
+					
 					while (true) {
-						view.updateImage(grabber.getImage());
+						Image image = grabber.getImage();
+						
+						image.subtract(background);
+						
+						view.updateImage(image);
 					}
 				} catch (Throwable e) {
 					e.printStackTrace();
