@@ -11,7 +11,7 @@ public final class ImageView {
 	private final Frame frame;
 	private Painter painter = null;
 
-	public ImageView(final int width, final int height) {
+	public ImageView(int width, int height) {
 		frame = new Frame("") {
 			@Override
 			public void paint(Graphics g) {
@@ -21,11 +21,12 @@ public final class ImageView {
 				Graphics2D g2 = (Graphics2D) g;
 				Painter currentPainter = painter;
 				BufferedImage bufferedImage = currentPainter.bufferedImage;
-
-				g.drawImage(bufferedImage, 0, 0, width, height, null);
-
-				g2.setTransform(AffineTransform.getScaleInstance((double) frame.getWidth() / bufferedImage.getWidth(), (double) height / bufferedImage.getHeight()));
 				
+				double scale = Math.min((double) frame.getWidth() / bufferedImage.getWidth(), (double) frame.getHeight() / bufferedImage.getHeight());
+
+				g2.setTransform(AffineTransform.getScaleInstance(scale, scale));
+
+				g.drawImage(bufferedImage, 0, 0, null);
 				currentPainter.draw((Graphics2D) g);
 			}
 		};
