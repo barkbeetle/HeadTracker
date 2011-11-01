@@ -147,10 +147,16 @@ public final class Image {
 	public static Image readFromStream(InputStream input, int width, int height) throws IOException {
 		int pos = 0;
 		byte[] pixels = new byte[width * height];
-		
-		while (pos < width * height)
-			pos += input.read(pixels, pos, width * height - pos);
-		
+
+		while (pos < width * height) {
+			int res = input.read(pixels, pos, width * height - pos);
+			
+			if (res < 0)
+				throw new IOException();
+			
+			pos += res;
+		}
+
 		return new Image(pixels, width, height);
 	}
 }
