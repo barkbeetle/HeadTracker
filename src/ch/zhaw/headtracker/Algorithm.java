@@ -1,7 +1,9 @@
 package ch.zhaw.headtracker;
 
 import ch.zhaw.headtracker.image.*;
+import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
 
 public class Algorithm {
 	private Algorithm() {
@@ -21,11 +23,11 @@ public class Algorithm {
 					while (true) {
 						Thread.sleep(100);
 
-						Image image = algorithm(background, grabber.getImage().shrink(2));
+						final Image image = algorithm(background, grabber.getImage().shrink(2));
 
 						view.update(new ImageView.Painter(image) {
 							@Override
-							public void draw(Graphics2D graphics) {
+							public void draw(Graphics2D g2) {
 							}
 						});
 					}

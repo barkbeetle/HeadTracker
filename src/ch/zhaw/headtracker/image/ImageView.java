@@ -5,32 +5,26 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.*;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 public final class ImageView {
-	private final Frame frame;
+	private final JFrame frame;
 	private Painter painter = null;
 
 	public ImageView(int width, int height) {
-		frame = new Frame("") {
+		JPanel panel = new JPanel() {
 			@Override
 			public void paint(Graphics g) {
-				if (painter == null)
-					return;
-				
-				Graphics2D g2 = (Graphics2D) g;
-				Painter currentPainter = painter;
-				BufferedImage bufferedImage = currentPainter.bufferedImage;
-				
-				double scale = Math.min((double) frame.getWidth() / bufferedImage.getWidth(), (double) frame.getHeight() / bufferedImage.getHeight());
-
-				g2.setTransform(AffineTransform.getScaleInstance(scale, scale));
-
-				g.drawImage(bufferedImage, 0, 0, null);
-				currentPainter.draw((Graphics2D) g);
+				if (painter != null)
+					painter.drawPainter((Graphics2D) g, getWidth(), getHeight());
 			}
 		};
-
+		
+		panel.setPreferredSize(new Dimension(width, height));
+		
+		frame = new JFrame();
+		frame.setContentPane(panel);
+		
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -41,8 +35,8 @@ public final class ImageView {
 				System.exit(0);
 			}
 		});
-
-		frame.setSize(width, height);
+		
+		frame.pack();
 		frame.setVisible(true);
 	}
 
@@ -52,13 +46,13 @@ public final class ImageView {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				frame.repaint();
+				frame.getContentPane().repaint();
 			}
 		});
 	}
 	
 	public abstract static class Painter {
-		public final BufferedImage bufferedImage;
+		private final BufferedImage bufferedImage;
 
 		protected Painter(Image image) {
 			byte[] data = image.getData();
@@ -72,6 +66,15 @@ public final class ImageView {
 			bufferedImage.setData(raster);
 		}
 		
-		public abstract void draw(Graphics2D graphics);
+		public final void drawPainter(Graphics2D g2, int width, int height) {
+			double scale = Math.min((double) width / bufferedImage.getWidth(), (double) height / bufferedImage.getHeight());
+
+			g2.setTransform(AffineTransform.getScaleInstance(scale, scale));
+			g2.drawImage(bufferedImage, 0, 0, null);
+			
+			draw(g2);
+		}
+		
+		protected abstract void draw(Graphics2D g2);
 	}
 }
