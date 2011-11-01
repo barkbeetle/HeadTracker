@@ -2,7 +2,6 @@ package ch.zhaw.headtracker;
 
 import ch.zhaw.headtracker.image.*;
 import java.awt.Graphics2D;
-import java.io.IOException;
 
 public class Algorithm {
 	private Algorithm() {
@@ -56,14 +55,9 @@ public class Algorithm {
 		mask.grow(5);
 		mask.invert();
 		mask.grow(5);
+
+		image.bitOr(mask);
 		
-		return mask;
-		
-		//max.
-		//
-		//if(Math.abs(bgPixel - imgPixel) < filterThreshold)
-		//	image.setPixel(x, y, 255);
-		//
-		//return image;
+		return image;
 	}
 }

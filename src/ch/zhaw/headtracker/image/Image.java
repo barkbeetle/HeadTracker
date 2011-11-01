@@ -8,7 +8,7 @@ public final class Image {
 	private final byte[] pixels;
 	public final int width;
 	public final int height;
-	
+
 	private Image(byte[] pixels, int width, int height) {
 		this.pixels = pixels;
 		this.width = width;
@@ -18,7 +18,7 @@ public final class Image {
 	public Image(int width, int height) {
 		this(new byte[width * height], width, height);
 	}
-	
+
 	public Image(Image image) {
 		this(image.getData(), image.width, image.height);
 	}
@@ -29,20 +29,6 @@ public final class Image {
 		return pixels[width * y + x] & 0xff;
 	}
 
-	public int getPixelRepeatEdgeValues(int x, int y) {
-		if (x < 0)
-			x = 0;
-		else if (x > width - 1)
-			x = width - 1;
-	
-		if (y < 0)
-			y = 0;
-		else if (y > height - 1)
-			y = height - 1;
-	
-		return pixels[width * y + x] & 0xff;
-	}
-	
 	public void setPixel(int x, int y, int value) {
 		assert 0 <= x && x < width && 0 <= y && y < height;
 		assert 0 <= value && value <= 0xff;
@@ -53,24 +39,11 @@ public final class Image {
 	public void setPixel(int x, int y, boolean value) {
 		setPixel(x, y, value ? 0xff : 0);
 	}
-	
+
 	public void invert() {
 		for (int iy = 0; iy < height; iy += 1)
 			for (int ix = 0; ix < width; ix += 1)
-				setPixel(ix, iy, (byte) ~getPixel(ix, iy));
-	}
-	
-	// Subtract pixel values of other from this image's values
-	public void subtract(Image other) {
-		assert other.height == height && other.width == width;
-
-		for (int iy = 0; iy < height; iy += 1) {
-			for (int ix = 0; ix < width; ix += 1) {
-				int pixel = getPixel(ix, iy) - other.getPixel(ix, iy);
-				
-				setPixel(ix, iy, (byte) (pixel < 0 ? 0 : pixel));
-			}
-		}
+				setPixel(ix, iy, ~getPixel(ix, iy) & 0xff);
 	}
 
 	// Add pixel values of other to this image's values
@@ -82,6 +55,19 @@ public final class Image {
 				int pixel = getPixel(ix, iy) + other.getPixel(ix, iy);
 
 				setPixel(ix, iy, (byte) (pixel > 0xff ? 0xff : pixel));
+			}
+		}
+	}
+
+	// Subtract pixel values of other from this image's values
+	public void subtract(Image other) {
+		assert other.height == height && other.width == width;
+
+		for (int iy = 0; iy < height; iy += 1) {
+			for (int ix = 0; ix < width; ix += 1) {
+				int pixel = getPixel(ix, iy) - other.getPixel(ix, iy);
+
+				setPixel(ix, iy, (byte) (pixel < 0 ? 0 : pixel));
 			}
 		}
 	}
@@ -124,9 +110,11 @@ public final class Image {
 		for (int iy = 0; iy < height; iy += 1) {
 			for (int ix = 0; ix < width; ix += 1) {
 				int pixel = 0;
+				int min = Math.max(0, ix - radius);
+				int max = Math.min(width, ix + radius + 1);
 
-				for (int ir = -radius; ir < radius; ir += 1)
-					pixel = Math.max(pixel, getPixelRepeatEdgeValues(ix + ir, iy));
+				for (int ix2 = min; ix2 < max; ix2 += 1)
+					pixel = Math.max(pixel, getPixel(ix2, iy));
 
 				tempImage.setPixel(ix, iy, pixel);
 			}
@@ -135,15 +123,17 @@ public final class Image {
 		for (int iy = 0; iy < height; iy += 1) {
 			for (int ix = 0; ix < width; ix += 1) {
 				int pixel = 0;
+				int min = Math.max(0, iy - radius);
+				int max = Math.min(height, iy + radius + 1);
 
-				for (int ir = -radius; ir < radius; ir += 1)
-					pixel = Math.max(pixel, tempImage.getPixelRepeatEdgeValues(ix, iy + ir));
+				for (int iy2 = min; iy2 < max; iy2 += 1)
+					pixel = Math.max(pixel, tempImage.getPixel(ix, iy2));
 
 				setPixel(ix, iy, pixel);
 			}
 		}
 	}
-	
+
 	// Return a copy of the image shrinked by factor
 	public Image shrink(int factor) {
 		Image image = new Image(width / factor, height / factor);
@@ -155,14 +145,14 @@ public final class Image {
 				for (int iy2 = 0; iy2 < factor; iy2 += 1)
 					for (int ix2 = 0; ix2 < factor; ix2 += 1)
 						pixel += getPixel(ix + ix2, iy + iy2);
-				
+
 				image.setPixel(ix, iy, pixel / (factor * factor));
 			}
 		}
-		
+
 		return image;
 	}
-	
+
 	@SuppressWarnings({ "InstanceVariableUsedBeforeInitialized" })
 	public byte[] getData() {
 		return Arrays.copyOf(pixels, pixels.length);
