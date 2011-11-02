@@ -103,56 +103,6 @@ public final class Image {
 				setPixel(ix, iy, getPixel(ix, iy) < threshold ? 0 : 0xff);
 	}
 
-	// Enlarge bright parts by radius
-	public void grow(int radius) {
-		Image tempImage = new Image(width, height);
-
-		for (int iy = 0; iy < height; iy += 1) {
-			for (int ix = 0; ix < width; ix += 1) {
-				int pixel = 0;
-				int min = Math.max(0, ix - radius);
-				int max = Math.min(width, ix + radius + 1);
-
-				for (int ix2 = min; ix2 < max; ix2 += 1)
-					pixel = Math.max(pixel, getPixel(ix2, iy));
-
-				tempImage.setPixel(ix, iy, pixel);
-			}
-		}
-
-		for (int iy = 0; iy < height; iy += 1) {
-			for (int ix = 0; ix < width; ix += 1) {
-				int pixel = 0;
-				int min = Math.max(0, iy - radius);
-				int max = Math.min(height, iy + radius + 1);
-
-				for (int iy2 = min; iy2 < max; iy2 += 1)
-					pixel = Math.max(pixel, tempImage.getPixel(ix, iy2));
-
-				setPixel(ix, iy, pixel);
-			}
-		}
-	}
-
-	// Return a copy of the image shrinked by factor
-	public Image shrink(int factor) {
-		Image image = new Image(width / factor, height / factor);
-
-		for (int iy = 0; iy < image.height; iy += 1) {
-			for (int ix = 0; ix < image.width; ix += 1) {
-				int pixel = 0;
-
-				for (int iy2 = 0; iy2 < factor; iy2 += 1)
-					for (int ix2 = 0; ix2 < factor; ix2 += 1)
-						pixel += getPixel(ix + ix2, iy + iy2);
-
-				image.setPixel(ix, iy, pixel / (factor * factor));
-			}
-		}
-
-		return image;
-	}
-
 	@SuppressWarnings({ "InstanceVariableUsedBeforeInitialized" })
 	public byte[] getData() {
 		return Arrays.copyOf(pixels, pixels.length);
