@@ -16,10 +16,9 @@ public class FileInputMain {
 			e.printStackTrace();
 		}
 	}
-
-	@SuppressWarnings({ "IOResourceOpenedButNotSafelyClosed" })
+	
 	private static void test() throws IOException {
-		ImageGrabber grabber = new InputStreamImageGrabber(new FileInputStream("res/captures/capture.raw"), 752, 480);
+		ImageGrabber grabber = InputStreamImageGrabber.fromFile("res/captures/capture.raw", 752, 480);
 		
 		Algorithm.run(grabber);
 	}
