@@ -123,7 +123,7 @@ public class ImageUtil {
 		}
 	}
 
-	// Enlarge bright parts by radius
+	// Enlarge dark parts by radius
 	public static void minimum(Image image, int radius) {
 		Image tempImage = new Image(image.width, image.height);
 
@@ -152,6 +152,29 @@ public class ImageUtil {
 				image.setPixel(ix, iy, pixel);
 			}
 		}
+	}
+
+	public static void bitAnd(Image image, Image other) {
+		assert other.height == image.height && other.width == image.width;
+
+		for(int y = 0; y < image.height; y += 1)
+			for(int x = 0; x < image.width; x += 1)
+				image.setPixel(x, y, image.getPixel(x, y) & other.getPixel(x, y));
+	}
+
+	public static void bitOr(Image image, Image other) {
+		assert other.height == image.height && other.width == image.width;
+
+		for(int y = 0; y < image.height; y += 1)
+			for(int x = 0; x < image.width; x += 1)
+				image.setPixel(x, y, image.getPixel(x, y) | other.getPixel(x, y));
+	}
+
+	// Set pixels below threshold to black and the other pixels to white
+	public static void threshold(Image image, int threshold) {
+		for (int iy = 0; iy < image.height; iy += 1)
+			for (int ix = 0; ix < image.width; ix += 1)
+				image.setPixel(ix, iy, image.getPixel(ix, iy) < threshold ? 0 : 0xff);
 	}
 
 	public enum OrientationAction {

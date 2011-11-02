@@ -51,7 +51,7 @@ public class Algorithm {
 		ImageUtil.maximum(mask, 5);
 		ImageUtil.minimum(mask, 5);
 		
-		image.bitOr(mask);
+		ImageUtil.bitOr(image, mask);
 		
 		return new ImageView.Painter(mask) {
 			@Override
