@@ -5,6 +5,8 @@ import ch.zhaw.headtracker.Algorithm;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class ControlPanel extends JFrame implements ChangeListener
 {
@@ -74,6 +76,20 @@ public class ControlPanel extends JFrame implements ChangeListener
 		maximumTextField.setLocation(300, 140);
 		maximumTextField.setSize(80, 20);
 		add(maximumTextField);
+
+		final JCheckBox showOriginalCheckBox = new JCheckBox("Show mask", Algorithm.showOriginal);
+		showOriginalCheckBox.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent actionEvent)
+			{
+				Algorithm.showOriginal = showOriginalCheckBox.isSelected();
+			}
+		});
+		showOriginalCheckBox.setLocation(20, 200);
+		showOriginalCheckBox.setSize(200, 20);
+		add(showOriginalCheckBox);
+
 
 		setVisible(true);
 	}
