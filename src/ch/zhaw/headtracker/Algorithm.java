@@ -5,7 +5,7 @@ import ch.zhaw.headtracker.image.*;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
-import java.util.List;
+import java.util.Set;
 
 public class Algorithm {
 	private Algorithm() {
@@ -93,7 +93,7 @@ public class Algorithm {
 			ImageUtil.bitOr(mask, image);
 			ImageUtil.threshold(mask, contrastThreshold);
 			
-			mask.invert();
+		//	mask.invert();
 
 		//	final Image minImage = opening(mask, minimum);
 		//	Image maxImage = opening(mask, maximum);
@@ -109,11 +109,10 @@ public class Algorithm {
 				public void draw(Graphics2D g2) {
 					g2.setPaint(Color.red);
 
-					List<Segmentation.object> objects = new Segmentation().findObjects(mask, 127);
+					Set<Segmentation.Group> groups = Segmentation.findGroups(mask);
 
-					for (Segmentation.object i : objects) {
-						g2.draw(new Rectangle2D.Double(i.left, i.top, i.right - i.left, i.bottom - i.top));
-					}
+					for (Segmentation.Group i : groups)
+						g2.draw(new Rectangle2D.Double(i.left - .5, i.top - .5, i.right - i.left + .5, i.bottom - i.top + .5));
 
 					//	g2.draw(new Rectangle2D.Double(10, 10, image.width - 20, image.height - 20));
 
