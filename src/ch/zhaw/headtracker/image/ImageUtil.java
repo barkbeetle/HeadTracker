@@ -36,7 +36,7 @@ public class ImageUtil {
 
 				for (int iy2 = 0; iy2 < factor; iy2 += 1)
 					for (int ix2 = 0; ix2 < factor; ix2 += 1)
-						pixel += image.getPixel(ix + ix2, iy + iy2);
+						pixel += image.getPixel(factor * ix + ix2, factor * iy + iy2);
 
 				newImgage.setPixel(ix, iy, pixel / (factor * factor));
 			}

@@ -51,7 +51,7 @@ public class ControlPanel extends JFrame implements ChangeListener
 		minimumLabel.setSize(200, 20);
 		add(minimumLabel);
 
-		minimumSlider = new JSlider(0, 20);
+		minimumSlider = new JSlider(0, 50);
 		minimumSlider.setValue(Algorithm.minimum);
 		minimumSlider.setLocation(150, 50);
 		minimumSlider.setSize(150, 20);
@@ -68,7 +68,7 @@ public class ControlPanel extends JFrame implements ChangeListener
 		maximumLabel.setSize(200, 20);
 		add(maximumLabel);
 
-		maximumSlider = new JSlider(0, 20);
+		maximumSlider = new JSlider(0, 50);
 		maximumSlider.setValue(Algorithm.maximum);
 		maximumSlider.setLocation(150, 80);
 		maximumSlider.setSize(150, 20);
