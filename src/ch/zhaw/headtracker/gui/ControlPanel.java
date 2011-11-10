@@ -8,18 +8,11 @@ import javax.swing.event.ChangeListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class ControlPanel extends JFrame implements ChangeListener
+public class ControlPanel extends JFrame
 {
-	private final JSlider filterThresholdSlider;
 	private final JTextField filterThresholdTextField;
-
-	private final JSlider minimumSlider;
 	private final JTextField minimumTextField;
-
-	private final JSlider maximumSlider;
 	private final JTextField maximumTextField;
-
-	private final JSlider contrastSlider;
 	private final JTextField contrastTextField;
 
 	public ControlPanel()
@@ -34,11 +27,19 @@ public class ControlPanel extends JFrame implements ChangeListener
 		filterThresholdLabel.setSize(200, 20);
 		add(filterThresholdLabel);
 
-		filterThresholdSlider = new JSlider(0, 50);
+		final JSlider filterThresholdSlider = new JSlider(0, 50);
 		filterThresholdSlider.setValue(Algorithm.filterThreshold);
 		filterThresholdSlider.setLocation(150, 20);
 		filterThresholdSlider.setSize(150, 20);
-		filterThresholdSlider.addChangeListener(this);
+		filterThresholdSlider.addChangeListener(new ChangeListener()
+		{
+			@Override
+			public void stateChanged(ChangeEvent changeEvent)
+			{
+				Algorithm.filterThreshold = filterThresholdSlider.getValue();
+				filterThresholdTextField.setText(Algorithm.filterThreshold + "");
+			}
+		});
 		add(filterThresholdSlider);
 
 		filterThresholdTextField = new JTextField(Algorithm.filterThreshold + "");
@@ -51,11 +52,19 @@ public class ControlPanel extends JFrame implements ChangeListener
 		minimumLabel.setSize(200, 20);
 		add(minimumLabel);
 
-		minimumSlider = new JSlider(0, 50);
+		final JSlider minimumSlider = new JSlider(0, 50);
 		minimumSlider.setValue(Algorithm.minimum);
 		minimumSlider.setLocation(150, 50);
 		minimumSlider.setSize(150, 20);
-		minimumSlider.addChangeListener(this);
+		minimumSlider.addChangeListener(new ChangeListener()
+		{
+			@Override
+			public void stateChanged(ChangeEvent changeEvent)
+			{
+				Algorithm.minimum = minimumSlider.getValue();
+				minimumTextField.setText(Algorithm.minimum + "");
+			}
+		});
 		add(minimumSlider);
 
 		minimumTextField = new JTextField(Algorithm.minimum + "");
@@ -68,11 +77,19 @@ public class ControlPanel extends JFrame implements ChangeListener
 		maximumLabel.setSize(200, 20);
 		add(maximumLabel);
 
-		maximumSlider = new JSlider(0, 50);
+		final JSlider maximumSlider = new JSlider(0, 50);
 		maximumSlider.setValue(Algorithm.maximum);
 		maximumSlider.setLocation(150, 80);
 		maximumSlider.setSize(150, 20);
-		maximumSlider.addChangeListener(this);
+		maximumSlider.addChangeListener(new ChangeListener()
+		{
+			@Override
+			public void stateChanged(ChangeEvent changeEvent)
+			{
+				Algorithm.maximum = maximumSlider.getValue();
+				maximumTextField.setText(Algorithm.maximum + "");
+			}
+		});
 		add(maximumSlider);
 
 		maximumTextField = new JTextField(Algorithm.maximum + "");
@@ -84,12 +101,20 @@ public class ControlPanel extends JFrame implements ChangeListener
 		contrastLabel.setLocation(20, 110);
 		contrastLabel.setSize(200, 20);
 		add(contrastLabel);
-		
-		contrastSlider = new JSlider(0, 255);
+
+		final JSlider contrastSlider = new JSlider(0, 255);
 		contrastSlider.setValue(Algorithm.contrastThreshold);
 		contrastSlider.setLocation(150, 110);
 		contrastSlider.setSize(150, 20);
-		contrastSlider.addChangeListener(this);
+		contrastSlider.addChangeListener(new ChangeListener()
+		{
+			@Override
+			public void stateChanged(ChangeEvent changeEvent)
+			{
+				Algorithm.contrastThreshold = contrastSlider.getValue();
+				contrastTextField.setText(Algorithm.contrastThreshold + "");
+			}
+		});
 		add(contrastSlider);
 
 		contrastTextField = new JTextField(Algorithm.contrastThreshold + "");
@@ -110,35 +135,6 @@ public class ControlPanel extends JFrame implements ChangeListener
 		showOriginalCheckBox.setSize(200, 20);
 		add(showOriginalCheckBox);
 
-
 		setVisible(true);
-	}
-
-	@Override
-	public void stateChanged(ChangeEvent changeEvent)
-	{
-		if (changeEvent.getSource().equals(filterThresholdSlider))
-		{
-			Algorithm.filterThreshold = filterThresholdSlider.getValue();
-			filterThresholdTextField.setText(Algorithm.filterThreshold + "");
-		}
-
-		if (changeEvent.getSource().equals(minimumSlider))
-		{
-			Algorithm.minimum = minimumSlider.getValue();
-			minimumTextField.setText(Algorithm.minimum + "");
-		}
-
-		if (changeEvent.getSource().equals(maximumSlider))
-		{
-			Algorithm.maximum = maximumSlider.getValue();
-			maximumTextField.setText(Algorithm.maximum + "");
-		}
-
-		if (changeEvent.getSource().equals(contrastSlider))
-		{
-			Algorithm.contrastThreshold = contrastSlider.getValue();
-			contrastTextField.setText(Algorithm.contrastThreshold + "");
-		}
 	}
 }

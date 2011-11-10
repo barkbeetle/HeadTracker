@@ -71,21 +71,34 @@ public class Algorithm {
 			ImageUtil.minimum(mask, minimum);
 			ImageUtil.maximum(mask, maximum);
 
-			image.bitOr(mask);
-			image.threshold(contrastThreshold);
-
+			ImageUtil.bitOr(image, mask);
+			ImageUtil.threshold(image, contrastThreshold);
+			
 			return new ImageView.Painter(image) {
 				@Override
 				public void draw(Graphics2D g2) {
-					g2.setPaint(Color.red);
 				//	g2.draw(new Rectangle2D.Double(10, 10, image.width - 20, image.height - 20));
 
+					int centerX = mask.width/2;
+					int centerY = mask.height/2;
+					int left = distanceLeft(mask, centerX, centerY);
+					int right = distanceRight(mask, centerX, centerY);
+
+					g2.setPaint(Color.blue);
+					g2.draw(new Line2D.Double(centerX, centerY, centerX - left, centerY));
+					g2.draw(new Line2D.Double(centerX - left, centerY, centerX - left + 4, centerY - 4));
+					g2.draw(new Line2D.Double(centerX - left, centerY, centerX - left + 4, centerY + 4));
+					g2.draw(new Line2D.Double(centerX, centerY, centerX + right, centerY));
+					g2.draw(new Line2D.Double(centerX + right, centerY, centerX + right - 4, centerY - 4));
+					g2.draw(new Line2D.Double(centerX + right, centerY, centerX + right - 4, centerY + 4));
+
+					g2.setPaint(Color.red);
 					for (int ix = 0; ix < mask.width; ix += 20) {
 						for (int iy = 0; iy < mask.height; iy += 1) {
 							if (mask.getPixel(ix, iy) < 0xff) {
 								g2.draw(new Line2D.Double(ix, 0, ix, iy));
-								g2.draw(new Line2D.Double(ix, iy, ix - 8, iy - 8));
-								g2.draw(new Line2D.Double(ix, iy, ix + 8, iy - 8));
+								g2.draw(new Line2D.Double(ix, iy, ix - 4, iy - 4));
+								g2.draw(new Line2D.Double(ix, iy, ix + 4, iy - 4));
 
 								break;
 							}
@@ -96,4 +109,28 @@ public class Algorithm {
 
 		}
 	}
+
+	private static int distanceLeft(Image mask, int x, int y) {
+		int distance = 0;
+		while(x >= 0) {
+			if(mask.getPixel(x, y) > 0)
+				return distance;
+			distance++;
+			x--;
+		}
+		return 0;
+	}
+
+	private static int distanceRight(Image mask, int x, int y) {
+		int distance = 0;
+		while(x < mask.width) {
+			if(mask.getPixel(x, y) > 0)
+				return distance;
+			distance++;
+			x++;
+		}
+		return 0;
+	}
+
+
 }
