@@ -54,7 +54,7 @@ public final class Image {
 			for (int ix = 0; ix < width; ix += 1) {
 				int pixel = getPixel(ix, iy) + other.getPixel(ix, iy);
 
-				setPixel(ix, iy, (byte) (pixel > 0xff ? 0xff : pixel));
+				setPixel(ix, iy, pixel > 0xff ? 0xff : pixel);
 			}
 		}
 	}
@@ -67,7 +67,7 @@ public final class Image {
 			for (int ix = 0; ix < width; ix += 1) {
 				int pixel = getPixel(ix, iy) - other.getPixel(ix, iy);
 
-				setPixel(ix, iy, (byte) (pixel < 0 ? 0 : pixel));
+				setPixel(ix, iy, pixel < 0 ? 0 : pixel);
 			}
 		}
 	}
