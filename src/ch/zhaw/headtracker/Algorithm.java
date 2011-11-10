@@ -4,7 +4,8 @@ import ch.zhaw.headtracker.gui.ControlPanel;
 import ch.zhaw.headtracker.image.*;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
+import java.util.List;
 
 public class Algorithm {
 	private Algorithm() {
@@ -27,6 +28,8 @@ public class Algorithm {
 			@Override
 			public void run() {
 				try {
+					grabber.getImage(); // Sometimes the camera fails to set the exposure time correctly for the first image
+					
 					Image background = ImageUtil.scaleDown(grabber.getImage(), 2);
 
 					while (true) {
@@ -44,19 +47,35 @@ public class Algorithm {
 		thread.start();
 	}
 
+	// make black spots smaller than radius vanish
+	private static Image opening(Image image, int radius) {
+		Image res = new Image(image);
+		
+		ImageUtil.maximum(res, radius);
+		ImageUtil.minimum(res, radius);
+		
+		return res;
+	}
+
+	// make white spots smaller than radius vanish
+	private static Image closing(Image image, int radius) {
+		Image res = new Image(image);
+
+		ImageUtil.maximum(res, radius);
+		ImageUtil.minimum(res, radius);
+
+		return res;
+	}
+
 	private static ImageView.Painter algorithm(Image background, final Image image) {
 
-		if(showOriginal){
-			return new ImageView.Painter(image)
-			{
+		if (showOriginal) {
+			return new ImageView.Painter(image) {
 				@Override
-				protected void draw(Graphics2D g2)
-				{
+				protected void draw(Graphics2D g2) {
 				}
 			};
-		}
-		else
-		{
+		} else {
 			final Image mask = new Image(image.width, image.height);
 
 			for(int y = 0; y < image.height; y += 1) {
@@ -67,33 +86,123 @@ public class Algorithm {
 					mask.setPixel(x, y, Math.abs(bgPixel - imgPixel) < filterThreshold);
 				}
 			}
+			
+			ImageUtil.minimum(mask, 10);
+			ImageUtil.maximum(mask, 10);
+			
+			ImageUtil.bitOr(mask, image);
+			ImageUtil.threshold(mask, contrastThreshold);
+			
+			mask.invert();
 
-			ImageUtil.minimum(mask, minimum);
-			ImageUtil.maximum(mask, maximum);
+		//	final Image minImage = opening(mask, minimum);
+		//	Image maxImage = opening(mask, maximum);
+			
+		//	maxImage.invert();
+			
+		//	ImageUtil.bitOr(minImage, maxImage);
 
-			image.bitOr(mask);
-			image.threshold(contrastThreshold);
+		//	minImage.invert();
 
-			return new ImageView.Painter(image) {
+			return new ImageView.Painter(mask) {
 				@Override
 				public void draw(Graphics2D g2) {
 					g2.setPaint(Color.red);
-				//	g2.draw(new Rectangle2D.Double(10, 10, image.width - 20, image.height - 20));
 
-					for (int ix = 0; ix < mask.width; ix += 20) {
-						for (int iy = 0; iy < mask.height; iy += 1) {
-							if (mask.getPixel(ix, iy) < 0xff) {
-								g2.draw(new Line2D.Double(ix, 0, ix, iy));
-								g2.draw(new Line2D.Double(ix, iy, ix - 8, iy - 8));
-								g2.draw(new Line2D.Double(ix, iy, ix + 8, iy - 8));
+					List<Segmentation.object> objects = new Segmentation().findObjects(mask, 127);
 
-								break;
-							}
-						}
+					for (Segmentation.object i : objects) {
+						g2.draw(new Rectangle2D.Double(i.left, i.top, i.right - i.left, i.bottom - i.top));
 					}
+
+					//	g2.draw(new Rectangle2D.Double(10, 10, image.width - 20, image.height - 20));
+
+					//for (int ix = 0; ix < mask.width; ix += 20) {
+					//	for (int iy = 0; iy < mask.height; iy += 1) {
+					//		if (mask.getPixel(ix, iy) < 0xff) {
+					//			g2.draw(new Line2D.Double(ix, 0, ix, iy));
+					//			g2.draw(new Line2D.Double(ix, iy, ix - 8, iy - 8));
+					//			g2.draw(new Line2D.Double(ix, iy, ix + 8, iy - 8));
+					//
+					//			break;
+					//		}
+					//	}
+					//}
 				}
 			};
-
 		}
 	}
+	
+	//public static List<Spot> findSpots(Image image, int minSize, int maxSize) {
+	//	class Group {
+	//		int size;
+	//		int posSumX;
+	//		int posSumY;
+	//
+	//		Group(int posSumX, int posSumY, int size) {
+	//			this.posSumX = posSumX;
+	//			this.posSumY = posSumY;
+	//			this.size = size;
+	//		}
+	//	}
+	//	
+	//	class Range {
+	//		int start;
+	//		int end;
+	//		Group group;
+	//	}
+	//
+	//	List<Range> rangesLast = new ArrayList<Range>(); // ranges on the last line
+	//	List<Range> rangesCurrent = new ArrayList<Range>(); // ranges on the current range
+	//	for (int iy = 0; iy < image.height; iy += 1) {
+	//		Range currentRange = null;
+	//		
+	//		for (int ix = 0; ix < image.width; ix += 1) {
+	//			if (image.getPixel(iy, ix) == 0) {
+	//				if (currentRange == null) {
+	//					currentRange = new Range();
+	//
+	//					currentRange.start = iy;
+	//				}
+	//			} else {
+	//				if (currentRange != null) {
+	//					currentRange.end = ix;
+	//
+	//					rangesCurrent.add(currentRange);
+	//				}
+	//			}
+	//		}
+	//		
+	//		if (currentRange != null) {
+	//			currentRange.end = image.width;
+	//
+	//			rangesCurrent.add(currentRange);
+	//		}
+	//		
+	//		int rangesLastPos = 0;
+	//		int rangesCurrentPos = 0;
+	//		
+	//		while (rangesLastPos < rangesLast.size() || rangesCurrentPos < rangesCurrent.size()) {
+	//			if (rangesLast.get(rangesLastPos).start < rangesCurrent.get(rangesCurrentPos).start) {
+	//				if (rangesLast.get(rangesLastPos).end < rangesCurrent.get(rangesCurrentPos).start) {
+	//					
+	//				}
+	//			}
+	//		}
+	//	}
+	//	
+	//	return null;
+	//}
+	//
+	//public static final class Spot {
+	//	public final int posX;
+	//	public final int posY;
+	//	public final int size;
+	//
+	//	public Spot(int posX, int posY, int size) {
+	//		this.posX = posX;
+	//		this.posY = posY;
+	//		this.size = size;
+	//	}
+	//}
 }
