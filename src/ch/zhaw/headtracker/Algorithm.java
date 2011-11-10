@@ -11,8 +11,9 @@ public class Algorithm {
 	}
 
 	public static int filterThreshold = 10;
-	public static int minimum = 5;
-	public static int maximum = 5;
+	public static int minimum = 10;
+	public static int maximum = 10;
+	public static int contrastThreshold = 50;
 	public static boolean showOriginal = false;
 
 	public static void run(final ImageGrabber grabber) {
@@ -71,8 +72,9 @@ public class Algorithm {
 			ImageUtil.maximum(mask, maximum);
 
 			image.bitOr(mask);
+			image.threshold(contrastThreshold);
 
-			return new ImageView.Painter(mask) {
+			return new ImageView.Painter(image) {
 				@Override
 				public void draw(Graphics2D g2) {
 					g2.setPaint(Color.red);

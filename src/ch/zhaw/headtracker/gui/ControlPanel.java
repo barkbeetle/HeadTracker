@@ -19,6 +19,9 @@ public class ControlPanel extends JFrame implements ChangeListener
 	private final JSlider maximumSlider;
 	private final JTextField maximumTextField;
 
+	private final JSlider contrastSlider;
+	private final JTextField contrastTextField;
+
 	public ControlPanel()
 	{
 		super("Control Panel");
@@ -44,40 +47,57 @@ public class ControlPanel extends JFrame implements ChangeListener
 		add(filterThresholdTextField);
 
 		JLabel minimumLabel = new JLabel("Minimum:");
-		minimumLabel.setLocation(20, 80);
+		minimumLabel.setLocation(20, 50);
 		minimumLabel.setSize(200, 20);
 		add(minimumLabel);
 
 		minimumSlider = new JSlider(0, 20);
 		minimumSlider.setValue(Algorithm.minimum);
-		minimumSlider.setLocation(150, 80);
+		minimumSlider.setLocation(150, 50);
 		minimumSlider.setSize(150, 20);
 		minimumSlider.addChangeListener(this);
 		add(minimumSlider);
 
 		minimumTextField = new JTextField(Algorithm.minimum + "");
-		minimumTextField.setLocation(300, 80);
+		minimumTextField.setLocation(300, 50);
 		minimumTextField.setSize(80, 20);
 		add(minimumTextField);
 
 		JLabel maximumLabel = new JLabel("Maximum:");
-		maximumLabel.setLocation(20, 140);
+		maximumLabel.setLocation(20, 80);
 		maximumLabel.setSize(200, 20);
 		add(maximumLabel);
 
 		maximumSlider = new JSlider(0, 20);
 		maximumSlider.setValue(Algorithm.maximum);
-		maximumSlider.setLocation(150, 140);
+		maximumSlider.setLocation(150, 80);
 		maximumSlider.setSize(150, 20);
 		maximumSlider.addChangeListener(this);
 		add(maximumSlider);
 
 		maximumTextField = new JTextField(Algorithm.maximum + "");
-		maximumTextField.setLocation(300, 140);
+		maximumTextField.setLocation(300, 80);
 		maximumTextField.setSize(80, 20);
 		add(maximumTextField);
 
-		final JCheckBox showOriginalCheckBox = new JCheckBox("Show mask", Algorithm.showOriginal);
+		JLabel contrastLabel = new JLabel("Contrast Threshold:");
+		contrastLabel.setLocation(20, 110);
+		contrastLabel.setSize(200, 20);
+		add(contrastLabel);
+		
+		contrastSlider = new JSlider(0, 255);
+		contrastSlider.setValue(Algorithm.contrastThreshold);
+		contrastSlider.setLocation(150, 110);
+		contrastSlider.setSize(150, 20);
+		contrastSlider.addChangeListener(this);
+		add(contrastSlider);
+
+		contrastTextField = new JTextField(Algorithm.contrastThreshold + "");
+		contrastTextField.setLocation(300, 110);
+		contrastTextField.setSize(80, 20);
+		add(contrastTextField);
+
+		final JCheckBox showOriginalCheckBox = new JCheckBox("Show original", Algorithm.showOriginal);
 		showOriginalCheckBox.addActionListener(new ActionListener()
 		{
 			@Override
@@ -86,7 +106,7 @@ public class ControlPanel extends JFrame implements ChangeListener
 				Algorithm.showOriginal = showOriginalCheckBox.isSelected();
 			}
 		});
-		showOriginalCheckBox.setLocation(20, 200);
+		showOriginalCheckBox.setLocation(20, 140);
 		showOriginalCheckBox.setSize(200, 20);
 		add(showOriginalCheckBox);
 
@@ -113,6 +133,12 @@ public class ControlPanel extends JFrame implements ChangeListener
 		{
 			Algorithm.maximum = maximumSlider.getValue();
 			maximumTextField.setText(Algorithm.maximum + "");
+		}
+
+		if (changeEvent.getSource().equals(contrastSlider))
+		{
+			Algorithm.contrastThreshold = contrastSlider.getValue();
+			contrastTextField.setText(Algorithm.contrastThreshold + "");
 		}
 	}
 }
