@@ -79,7 +79,7 @@ public class Algorithm {
 				public void draw(Graphics2D g2) {
 				//	g2.draw(new Rectangle2D.Double(10, 10, image.width - 20, image.height - 20));
 
-					int centerX = mask.width/2;
+					/*int centerX = mask.width/2;
 					int centerY = mask.height/2;
 					int left = distanceLeft(mask, centerX, centerY);
 					int right = distanceRight(mask, centerX, centerY);
@@ -90,7 +90,7 @@ public class Algorithm {
 					g2.draw(new Line2D.Double(centerX - left, centerY, centerX - left + 4, centerY + 4));
 					g2.draw(new Line2D.Double(centerX, centerY, centerX + right, centerY));
 					g2.draw(new Line2D.Double(centerX + right, centerY, centerX + right - 4, centerY - 4));
-					g2.draw(new Line2D.Double(centerX + right, centerY, centerX + right - 4, centerY + 4));
+					g2.draw(new Line2D.Double(centerX + right, centerY, centerX + right - 4, centerY + 4));*/
 
 					g2.setPaint(Color.red);
 					for (int ix = 0; ix < mask.width; ix += 20) {
