@@ -2,7 +2,6 @@ package ch.zhaw.headtracker;
 
 import ch.zhaw.headtracker.image.ImageGrabber;
 import ch.zhaw.headtracker.image.InputStreamImageGrabber;
-import java.io.FileInputStream;
 import java.io.IOException;
 
 public class FileInputMain {
@@ -20,6 +19,6 @@ public class FileInputMain {
 	private static void test() throws IOException {
 		ImageGrabber grabber = InputStreamImageGrabber.fromFile("res/captures/capture.raw", 752, 480);
 		
-		Algorithm.run(grabber);
+		new Algorithm(grabber).run();
 	}
 }

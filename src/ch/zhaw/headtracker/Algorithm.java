@@ -11,22 +11,23 @@ import java.util.Set;
 import static ch.zhaw.headtracker.gui.ControlPanel2.CheckBoxSetting;
 import static ch.zhaw.headtracker.gui.ControlPanel2.SliderSetting;
 
-public class Algorithm {
-	private Algorithm() {
+public final class Algorithm {
+	private final ImageGrabber grabber;
+	private final ImageView view = new ImageView(752, 480);
+	private final ControlPanel2 controlPanel = new ControlPanel2();
+	private final SliderSetting filterThreshold = controlPanel.sliderSetting("Background threshold", 0, 50, 10);
+	private final SliderSetting minimum = controlPanel.sliderSetting("Minimum", 0, 50, 10);
+	private final SliderSetting maximum = controlPanel.sliderSetting("Maximum", 0, 50, 10);
+	private final SliderSetting contrastThreshold = controlPanel.sliderSetting("Contrast threshold", 0, 255, 100);
+	private final CheckBoxSetting showOriginal = controlPanel.checkBoxSetting("Show original", false);
+	private final CheckBoxSetting showPlummets = controlPanel.checkBoxSetting("Show plummets", true);
+	private final CheckBoxSetting showSegmentation = controlPanel.checkBoxSetting("Show segmentation", true);
+
+	public Algorithm(ImageGrabber grabber) {
+		this.grabber = grabber;
 	}
 
-	private static final SliderSetting filterThreshold = new SliderSetting("Background threshold", 0, 50, 10);
-	private static final SliderSetting minimum = new SliderSetting("Minimum", 0, 50, 10);
-	private static final SliderSetting maximum = new SliderSetting("Maximum", 0, 50, 10);
-	private static final SliderSetting contrastThreshold = new SliderSetting("Contrast threshold", 0, 255, 100);
-	private static final CheckBoxSetting showOriginal = new CheckBoxSetting("Show original", false);
-	private static final CheckBoxSetting showPlummets = new CheckBoxSetting("Show plummets", true);
-	private static final CheckBoxSetting showSegmentation = new CheckBoxSetting("Show segmentation", true);
-
-	public static void run(final ImageGrabber grabber) {
-		final ImageView view = new ImageView(752, 480);
-		ControlPanel2 controlPanel = new ControlPanel2(filterThreshold, minimum, maximum, contrastThreshold, showOriginal, showPlummets, showSegmentation);
-
+	public void run() {
 		view.show(new Point(80, 100));
 		controlPanel.show(new Point(752 + 10 + 80, 100));
 
@@ -53,28 +54,7 @@ public class Algorithm {
 		thread.start();
 	}
 
-	// make black spots smaller than radius vanish
-	private static Image opening(Image image, int radius) {
-		Image res = new Image(image);
-		
-		ImageUtil.maximum(res, radius);
-		ImageUtil.minimum(res, radius);
-		
-		return res;
-	}
-
-	// make white spots smaller than radius vanish
-	private static Image closing(Image image, int radius) {
-		Image res = new Image(image);
-
-		ImageUtil.maximum(res, radius);
-		ImageUtil.minimum(res, radius);
-
-		return res;
-	}
-
-	private static ImageView.Painter algorithm(Image background, final Image image) {
-
+	private ImageView.Painter algorithm(Image background, final Image image) {
 		if (showOriginal.value) {
 			return new ImageView.Painter(image) {
 				@Override
@@ -114,7 +94,7 @@ public class Algorithm {
 						}
 					}
 					
-					if (showPlummets) {
+					if (showPlummets.value) {
 						g2.setPaint(Color.red);
 						for (int ix = 0; ix < mask.width; ix += 20) {
 							for (int iy = 0; iy < mask.height; iy += 1) {
@@ -131,6 +111,26 @@ public class Algorithm {
 				}
 			};
 		}
+	}
+
+	// make black spots smaller than radius vanish
+	private static Image opening(Image image, int radius) {
+		Image res = new Image(image);
+
+		ImageUtil.maximum(res, radius);
+		ImageUtil.minimum(res, radius);
+
+		return res;
+	}
+
+	// make white spots smaller than radius vanish
+	private static Image closing(Image image, int radius) {
+		Image res = new Image(image);
+
+		ImageUtil.maximum(res, radius);
+		ImageUtil.minimum(res, radius);
+
+		return res;
 	}
 
 	private static int distanceLeft(Image mask, int x, int y) {

@@ -2,42 +2,51 @@ package ch.zhaw.headtracker.gui;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 public final class ControlPanel2 {
 	private final JDialog dialog = new JDialog();
+	private final List<Setting> settings = new ArrayList<Setting>();
 	
-	public ControlPanel2(Setting ... settings) {
+	public ControlPanel2() {
 	//	frame.setUndecorated(true);
 		dialog.setAlwaysOnTop(true);
 		dialog.setResizable(false);
 		dialog.setLayout(new BoxLayout(dialog.getContentPane(), BoxLayout.PAGE_AXIS));
 		dialog.getRootPane().putClientProperty("Window.style", "small");
-		
-		dialog.add(Box.createVerticalStrut(10));
-		
-		for (Setting i : settings)
-			dialog.add(i.makePanel());
-		
-		dialog.add(Box.createVerticalStrut(16));
 	}
 
 	public void show(Point location) {
+		dialog.add(Box.createVerticalStrut(10));
+
+		for (Setting i : settings)
+			dialog.add(i.makePanel());
+
+		dialog.add(Box.createVerticalStrut(16));
+		
 		dialog.setLocation(location);
 		dialog.pack();
 		dialog.setVisible(true);
 	}
 	
-	public abstract static class Setting {
-		public final String label;
-
-		protected Setting(String label) {
-			this.label = label;
-		}
+	public SliderSetting sliderSetting(String label, int minValue, int maxValue, int value) {
+		SliderSetting res = new SliderSetting(label, minValue, maxValue, value);
 		
-		public abstract JPanel makePanel();
+		settings.add(res);
+		
+		return res;
+	}
+
+	public CheckBoxSetting checkBoxSetting(String label, boolean value) {
+		CheckBoxSetting res = new CheckBoxSetting(label, value);
+
+		settings.add(res);
+
+		return res;
 	}
 	
 	private static JComponent setWidth(JComponent component, int width) {
@@ -47,16 +56,22 @@ public final class ControlPanel2 {
 		return component;
 	}
 
+	public abstract static class Setting {
+		public final String label;
+
+		protected Setting(String label) {
+			this.label = label;
+		}
+
+		public abstract JPanel makePanel();
+	}
+
 	public static final class SliderSetting extends Setting {
 		public int value;
 		public final int minValue;
 		public final int maxValue;
 
-		public SliderSetting(String label, int minValue, int maxValue) {
-			this(label, maxValue, minValue, minValue);
-		}
-
-		public SliderSetting(String label, int minValue, int maxValue, int value) {
+		private SliderSetting(String label, int minValue, int maxValue, int value) {
 			super(label);
 			this.value = value;
 			this.minValue = minValue;
@@ -94,12 +109,8 @@ public final class ControlPanel2 {
 
 	public static final class CheckBoxSetting extends Setting {
 		public boolean value;
-
-		public CheckBoxSetting(String label) {
-			this(label, false);
-		}
-
-		public CheckBoxSetting(String label, boolean value) {
+		
+		private CheckBoxSetting(String label, boolean value) {
 			super(label);
 			this.value = value;
 		}

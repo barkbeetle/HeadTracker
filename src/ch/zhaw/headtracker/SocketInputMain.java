@@ -1,6 +1,5 @@
 package ch.zhaw.headtracker;
 
-import ch.zhaw.headtracker.Algorithm;
 import ch.zhaw.headtracker.image.ImageGrabber;
 import ch.zhaw.headtracker.image.InputStreamImageGrabber;
 import java.io.IOException;
@@ -21,6 +20,6 @@ public class SocketInputMain {
 	private static void test() throws IOException {
 		final ImageGrabber grabber = InputStreamImageGrabber.fromSocketAddress("10.0.0.3", (short) 9999, 80000, 752, 480);
 		
-		Algorithm.run(grabber);
+		new Algorithm(grabber).run();
 	}
 }
