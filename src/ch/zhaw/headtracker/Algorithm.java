@@ -108,6 +108,18 @@ public final class Algorithm {
 							}
 						}
 					}
+
+					/*int centerX = mask.width/2;
+					int centerY = mask.height/2;
+					int left = distanceLeft(mask, centerX, centerY);
+					int right = distanceRight(mask, centerX, centerY);
+					
+					g2.setPaint(Color.blue);
+					g2.draw(new Line2D.Double(centerX, centerY, centerX - left, centerY));
+					g2.draw(new Line2D.Double(centerX - left, centerY, centerX - left + 4, centerY - 4));
+					g2.draw(new Line2D.Double(centerX - left, centerY, centerX - left + 4, centerY + 4));                   g2.draw(new Line2D.Double(centerX, centerY, centerX + right, centerY));
+					g2.draw(new Line2D.Double(centerX + right, centerY, centerX + right - 4, centerY - 4));
+					g2.draw(new Line2D.Double(centerX + right, centerY, centerX + right - 4, centerY + 4));*/
 				}
 			};
 		}
