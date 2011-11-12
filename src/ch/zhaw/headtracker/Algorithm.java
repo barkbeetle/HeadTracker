@@ -1,9 +1,10 @@
 package ch.zhaw.headtracker;
 
 import ch.zhaw.headtracker.gui.ControlPanel2;
-import ch.zhaw.headtracker.image.*;
 import ch.zhaw.headtracker.image.Image;
+import ch.zhaw.headtracker.image.*;
 import java.awt.*;
+import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Set;
 
@@ -89,35 +90,52 @@ public class Algorithm {
 					mask.setPixel(x, y, Math.abs(bgPixel - imgPixel) < filterThreshold.value);
 				}
 			}
-			
-			ImageUtil.minimum(mask, 10);
-			ImageUtil.maximum(mask, 10);
-			
-			ImageUtil.bitOr(mask, image);
-			ImageUtil.threshold(mask, contrastThreshold.value);
-			
-		//	mask.invert();
 
-		//	final Image minImage = opening(mask, minimum);
-		//	Image maxImage = opening(mask, maximum);
-			
-		//	maxImage.invert();
-			
-		//	ImageUtil.bitOr(minImage, maxImage);
+			ImageUtil.minimum(mask, minimum.value);
+			ImageUtil.maximum(mask, maximum.value);
 
-		//	minImage.invert();
-
+			ImageUtil.bitOr(image, mask);
+			ImageUtil.threshold(image, contrastThreshold.value);
+			
 			return new ImageView.Painter(mask) {
 				@Override
 				public void draw(Graphics2D g2) {
 					g2.setPaint(Color.red);
-
-					Set<Segmentation.Group> groups = Segmentation.findGroups(mask);
-
+					
+					Set<Segmentation.Group> groups = Segmentation.findGroups(image);
+					
 					for (Segmentation.Group i : groups) {
 						g2.draw(new Rectangle2D.Double(i.left - .5, i.top - .5, i.right - i.left + .5, i.bottom - i.top + .5));
 						
 						g2.drawString(String.format("%d", i.sum), i.left, i.top);
+					}
+					
+				//	g2.draw(new Rectangle2D.Double(10, 10, image.width - 20, image.height - 20));
+
+					/*int centerX = mask.width/2;
+					int centerY = mask.height/2;
+					int left = distanceLeft(mask, centerX, centerY);
+					int right = distanceRight(mask, centerX, centerY);
+
+					g2.setPaint(Color.blue);
+					g2.draw(new Line2D.Double(centerX, centerY, centerX - left, centerY));
+					g2.draw(new Line2D.Double(centerX - left, centerY, centerX - left + 4, centerY - 4));
+					g2.draw(new Line2D.Double(centerX - left, centerY, centerX - left + 4, centerY + 4));
+					g2.draw(new Line2D.Double(centerX, centerY, centerX + right, centerY));
+					g2.draw(new Line2D.Double(centerX + right, centerY, centerX + right - 4, centerY - 4));
+					g2.draw(new Line2D.Double(centerX + right, centerY, centerX + right - 4, centerY + 4));*/
+
+					g2.setPaint(Color.red);
+					for (int ix = 0; ix < mask.width; ix += 20) {
+						for (int iy = 0; iy < mask.height; iy += 1) {
+							if (mask.getPixel(ix, iy) < 0xff) {
+								g2.draw(new Line2D.Double(ix, 0, ix, iy));
+								g2.draw(new Line2D.Double(ix, iy, ix - 4, iy - 4));
+								g2.draw(new Line2D.Double(ix, iy, ix + 4, iy - 4));
+
+								break;
+							}
+						}
 					}
 
 					//	g2.draw(new Rectangle2D.Double(10, 10, image.width - 20, image.height - 20));
@@ -137,77 +155,26 @@ public class Algorithm {
 			};
 		}
 	}
-	
-	//public static List<Spot> findSpots(Image image, int minSize, int maxSize) {
-	//	class Group {
-	//		int size;
-	//		int posSumX;
-	//		int posSumY;
-	//
-	//		Group(int posSumX, int posSumY, int size) {
-	//			this.posSumX = posSumX;
-	//			this.posSumY = posSumY;
-	//			this.size = size;
-	//		}
-	//	}
-	//	
-	//	class Range {
-	//		int start;
-	//		int end;
-	//		Group group;
-	//	}
-	//
-	//	List<Range> rangesLast = new ArrayList<Range>(); // ranges on the last line
-	//	List<Range> rangesCurrent = new ArrayList<Range>(); // ranges on the current range
-	//	for (int iy = 0; iy < image.height; iy += 1) {
-	//		Range currentRange = null;
-	//		
-	//		for (int ix = 0; ix < image.width; ix += 1) {
-	//			if (image.getPixel(iy, ix) == 0) {
-	//				if (currentRange == null) {
-	//					currentRange = new Range();
-	//
-	//					currentRange.start = iy;
-	//				}
-	//			} else {
-	//				if (currentRange != null) {
-	//					currentRange.end = ix;
-	//
-	//					rangesCurrent.add(currentRange);
-	//				}
-	//			}
-	//		}
-	//		
-	//		if (currentRange != null) {
-	//			currentRange.end = image.width;
-	//
-	//			rangesCurrent.add(currentRange);
-	//		}
-	//		
-	//		int rangesLastPos = 0;
-	//		int rangesCurrentPos = 0;
-	//		
-	//		while (rangesLastPos < rangesLast.size() || rangesCurrentPos < rangesCurrent.size()) {
-	//			if (rangesLast.get(rangesLastPos).start < rangesCurrent.get(rangesCurrentPos).start) {
-	//				if (rangesLast.get(rangesLastPos).end < rangesCurrent.get(rangesCurrentPos).start) {
-	//					
-	//				}
-	//			}
-	//		}
-	//	}
-	//	
-	//	return null;
-	//}
-	//
-	//public static final class Spot {
-	//	public final int posX;
-	//	public final int posY;
-	//	public final int size;
-	//
-	//	public Spot(int posX, int posY, int size) {
-	//		this.posX = posX;
-	//		this.posY = posY;
-	//		this.size = size;
-	//	}
-	//}
+
+	private static int distanceLeft(Image mask, int x, int y) {
+		int distance = 0;
+		while(x >= 0) {
+			if(mask.getPixel(x, y) > 0)
+				return distance;
+			distance++;
+			x--;
+		}
+		return 0;
+	}
+
+	private static int distanceRight(Image mask, int x, int y) {
+		int distance = 0;
+		while(x < mask.width) {
+			if(mask.getPixel(x, y) > 0)
+				return distance;
+			distance++;
+			x++;
+		}
+		return 0;
+	}
 }
