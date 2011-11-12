@@ -1,28 +1,31 @@
 package ch.zhaw.headtracker;
 
-import ch.zhaw.headtracker.gui.ControlPanel;
+import ch.zhaw.headtracker.gui.ControlPanel2;
 import ch.zhaw.headtracker.image.*;
-import java.awt.Color;
-import java.awt.Graphics2D;
+import ch.zhaw.headtracker.image.Image;
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.util.Set;
+
+import static ch.zhaw.headtracker.gui.ControlPanel2.CheckBoxSetting;
+import static ch.zhaw.headtracker.gui.ControlPanel2.SliderSetting;
 
 public class Algorithm {
 	private Algorithm() {
 	}
 
-	public static int filterThreshold = 10;
-	public static int minimum = 10;
-	public static int maximum = 10;
-	public static int contrastThreshold = 50;
-	public static boolean showOriginal = false;
+	private static final SliderSetting filterThreshold = new SliderSetting("Background threshold", 0, 50, 10);
+	private static final SliderSetting minimum = new SliderSetting("Minimum", 0, 50, 10);
+	private static final SliderSetting maximum = new SliderSetting("Maximum", 0, 50, 10);
+	private static final SliderSetting contrastThreshold = new SliderSetting("Contrast threshold", 0, 255, 50);
+	private static final CheckBoxSetting showOriginal = new CheckBoxSetting("Show original", false);
 
 	public static void run(final ImageGrabber grabber) {
 		final ImageView view = new ImageView(752, 480);
-		final ControlPanel controlPanel = new ControlPanel();
+		ControlPanel2 controlPanel = new ControlPanel2(filterThreshold, minimum, maximum, contrastThreshold, showOriginal);
 
-		// align control panel to image view
-		controlPanel.setLocation(view.getLocation().x + view.getSize().width + 10, view.getLocation().y);
+		view.show(new Point(80, 100));
+		controlPanel.show(new Point(752 + 10 + 80, 100));
 
 		Thread thread = new Thread(new Runnable() {
 			@Override
@@ -69,7 +72,7 @@ public class Algorithm {
 
 	private static ImageView.Painter algorithm(Image background, final Image image) {
 
-		if (showOriginal) {
+		if (showOriginal.value) {
 			return new ImageView.Painter(image) {
 				@Override
 				protected void draw(Graphics2D g2) {
@@ -83,7 +86,7 @@ public class Algorithm {
 					int bgPixel = background.getPixel(x, y);
 					int imgPixel = image.getPixel(x, y);
 
-					mask.setPixel(x, y, Math.abs(bgPixel - imgPixel) < filterThreshold);
+					mask.setPixel(x, y, Math.abs(bgPixel - imgPixel) < filterThreshold.value);
 				}
 			}
 			
@@ -91,7 +94,7 @@ public class Algorithm {
 			ImageUtil.maximum(mask, 10);
 			
 			ImageUtil.bitOr(mask, image);
-			ImageUtil.threshold(mask, contrastThreshold);
+			ImageUtil.threshold(mask, contrastThreshold.value);
 			
 		//	mask.invert();
 
@@ -111,8 +114,11 @@ public class Algorithm {
 
 					Set<Segmentation.Group> groups = Segmentation.findGroups(mask);
 
-					for (Segmentation.Group i : groups)
+					for (Segmentation.Group i : groups) {
 						g2.draw(new Rectangle2D.Double(i.left - .5, i.top - .5, i.right - i.left + .5, i.bottom - i.top + .5));
+						
+						g2.drawString(String.format("%d", i.sum), i.left, i.top);
+					}
 
 					//	g2.draw(new Rectangle2D.Double(10, 10, image.width - 20, image.height - 20));
 

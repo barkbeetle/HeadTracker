@@ -23,7 +23,6 @@ public final class ImageView {
 		panel.setPreferredSize(new Dimension(width, height));
 		
 		frame = new JFrame("Head Tracker");
-		frame.setLocation(150, 150);
 		frame.setContentPane(panel);
 		
 		frame.addWindowListener(new WindowAdapter() {
@@ -36,7 +35,10 @@ public final class ImageView {
 				System.exit(0);
 			}
 		});
-		
+	}
+	
+	public void show(Point location) {
+		frame.setLocation(location);
 		frame.pack();
 		frame.setVisible(true);
 	}
@@ -77,15 +79,5 @@ public final class ImageView {
 		}
 		
 		protected abstract void draw(Graphics2D g2);
-	}
-
-	public Point getLocation()
-	{
-		return frame.getLocation();
-	}
-
-	public Dimension getSize()
-	{
-		return frame.getSize();
 	}
 }
