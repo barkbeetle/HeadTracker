@@ -7,26 +7,27 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 public final class ControlPanel2 {
-	private final JFrame frame = new JFrame();
+	private final JDialog dialog = new JDialog();
 	
 	public ControlPanel2(Setting ... settings) {
 	//	frame.setUndecorated(true);
-		frame.setAlwaysOnTop(true);
-		frame.setResizable(false);
-		frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.PAGE_AXIS));
+		dialog.setAlwaysOnTop(true);
+		dialog.setResizable(false);
+		dialog.setLayout(new BoxLayout(dialog.getContentPane(), BoxLayout.PAGE_AXIS));
+		dialog.getRootPane().putClientProperty("Window.style", "small");
 		
-		frame.add(Box.createVerticalStrut(10));
+		dialog.add(Box.createVerticalStrut(10));
 		
 		for (Setting i : settings)
-			frame.add(i.makePanel());
+			dialog.add(i.makePanel());
 		
-		frame.add(Box.createVerticalStrut(16));
+		dialog.add(Box.createVerticalStrut(16));
 	}
 
 	public void show(Point location) {
-		frame.setLocation(location);
-		frame.pack();
-		frame.setVisible(true);
+		dialog.setLocation(location);
+		dialog.pack();
+		dialog.setVisible(true);
 	}
 	
 	public abstract static class Setting {
@@ -66,7 +67,7 @@ public final class ControlPanel2 {
 		public JPanel makePanel() {
 			final JSlider slider = new JSlider(minValue, maxValue, value);
 			final JLabel valueLabel = new JLabel(valueString());
-
+			
 			slider.addChangeListener(new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent e) {
@@ -80,7 +81,7 @@ public final class ControlPanel2 {
 			panel.add(Box.createHorizontalGlue());
 			panel.add(Box.createHorizontalStrut(16));
 			panel.add(new JLabel(label + ":"));
-			panel.add(setWidth(slider, 200));
+			panel.add(setWidth(slider, 150));
 			panel.add(setWidth(valueLabel, 35));
 			
 			return panel;
@@ -117,7 +118,7 @@ public final class ControlPanel2 {
 			JPanel panel = new JPanel();
 			panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 			panel.add(Box.createHorizontalGlue());
-			panel.add(setWidth(checkBox, 235));
+			panel.add(setWidth(checkBox, 180));
 			
 			return panel;
 		}
