@@ -18,12 +18,14 @@ public class Algorithm {
 	private static final SliderSetting filterThreshold = new SliderSetting("Background threshold", 0, 50, 10);
 	private static final SliderSetting minimum = new SliderSetting("Minimum", 0, 50, 10);
 	private static final SliderSetting maximum = new SliderSetting("Maximum", 0, 50, 10);
-	private static final SliderSetting contrastThreshold = new SliderSetting("Contrast threshold", 0, 255, 50);
+	private static final SliderSetting contrastThreshold = new SliderSetting("Contrast threshold", 0, 255, 100);
 	private static final CheckBoxSetting showOriginal = new CheckBoxSetting("Show original", false);
+	private static final CheckBoxSetting showPlummets = new CheckBoxSetting("Show plummets", true);
+	private static final CheckBoxSetting showSegmentation = new CheckBoxSetting("Show segmentation", true);
 
 	public static void run(final ImageGrabber grabber) {
 		final ImageView view = new ImageView(752, 480);
-		ControlPanel2 controlPanel = new ControlPanel2(filterThreshold, minimum, maximum, contrastThreshold, showOriginal);
+		ControlPanel2 controlPanel = new ControlPanel2(filterThreshold, minimum, maximum, contrastThreshold, showOriginal, showPlummets, showSegmentation);
 
 		view.show(new Point(80, 100));
 		controlPanel.show(new Point(752 + 10 + 80, 100));
@@ -97,60 +99,35 @@ public class Algorithm {
 			ImageUtil.bitOr(image, mask);
 			ImageUtil.threshold(image, contrastThreshold.value);
 			
-			return new ImageView.Painter(mask) {
+			return new ImageView.Painter(image) {
 				@Override
 				public void draw(Graphics2D g2) {
 					g2.setPaint(Color.red);
 					
-					Set<Segmentation.Group> groups = Segmentation.findGroups(image);
-					
-					for (Segmentation.Group i : groups) {
-						g2.draw(new Rectangle2D.Double(i.left - .5, i.top - .5, i.right - i.left + .5, i.bottom - i.top + .5));
+					if (showSegmentation.value) {
+						Set<Segmentation.Group> groups = Segmentation.findGroups(image);
 						
-						g2.drawString(String.format("%d", i.sum), i.left, i.top);
+						for (Segmentation.Group i : groups) {
+							g2.draw(new Rectangle2D.Double(i.left - .5, i.top - .5, i.right - i.left + .5, i.bottom - i.top + .5));
+							
+							g2.drawString(String.format("%d", i.sum), i.left, i.top);
+						}
 					}
 					
-				//	g2.draw(new Rectangle2D.Double(10, 10, image.width - 20, image.height - 20));
-
-					/*int centerX = mask.width/2;
-					int centerY = mask.height/2;
-					int left = distanceLeft(mask, centerX, centerY);
-					int right = distanceRight(mask, centerX, centerY);
-
-					g2.setPaint(Color.blue);
-					g2.draw(new Line2D.Double(centerX, centerY, centerX - left, centerY));
-					g2.draw(new Line2D.Double(centerX - left, centerY, centerX - left + 4, centerY - 4));
-					g2.draw(new Line2D.Double(centerX - left, centerY, centerX - left + 4, centerY + 4));
-					g2.draw(new Line2D.Double(centerX, centerY, centerX + right, centerY));
-					g2.draw(new Line2D.Double(centerX + right, centerY, centerX + right - 4, centerY - 4));
-					g2.draw(new Line2D.Double(centerX + right, centerY, centerX + right - 4, centerY + 4));*/
-
-					g2.setPaint(Color.red);
-					for (int ix = 0; ix < mask.width; ix += 20) {
-						for (int iy = 0; iy < mask.height; iy += 1) {
-							if (mask.getPixel(ix, iy) < 0xff) {
-								g2.draw(new Line2D.Double(ix, 0, ix, iy));
-								g2.draw(new Line2D.Double(ix, iy, ix - 4, iy - 4));
-								g2.draw(new Line2D.Double(ix, iy, ix + 4, iy - 4));
-
-								break;
+					if (showPlummets) {
+						g2.setPaint(Color.red);
+						for (int ix = 0; ix < mask.width; ix += 20) {
+							for (int iy = 0; iy < mask.height; iy += 1) {
+								if (mask.getPixel(ix, iy) < 0xff) {
+									g2.draw(new Line2D.Double(ix, 0, ix, iy));
+									g2.draw(new Line2D.Double(ix, iy, ix - 4, iy - 4));
+									g2.draw(new Line2D.Double(ix, iy, ix + 4, iy - 4));
+	
+									break;
+								}
 							}
 						}
 					}
-
-					//	g2.draw(new Rectangle2D.Double(10, 10, image.width - 20, image.height - 20));
-
-					//for (int ix = 0; ix < mask.width; ix += 20) {
-					//	for (int iy = 0; iy < mask.height; iy += 1) {
-					//		if (mask.getPixel(ix, iy) < 0xff) {
-					//			g2.draw(new Line2D.Double(ix, 0, ix, iy));
-					//			g2.draw(new Line2D.Double(ix, iy, ix - 8, iy - 8));
-					//			g2.draw(new Line2D.Double(ix, iy, ix + 8, iy - 8));
-					//
-					//			break;
-					//		}
-					//	}
-					//}
 				}
 			};
 		}
