@@ -2,21 +2,18 @@ package ch.zhaw.headtracker.gui;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 import javax.jnlp.BasicService;
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.event.*;
 
 public final class ControlPanel2 {
 	private final JDialog dialog = new JDialog();
 	private final List<Setting> settings = new ArrayList<Setting>();
 	
 	public ControlPanel2() {
-	//	frame.setUndecorated(true);
 		dialog.setAlwaysOnTop(true);
 		dialog.setResizable(false);
 		dialog.setLayout(new BoxLayout(dialog.getContentPane(), BoxLayout.PAGE_AXIS));
@@ -54,6 +51,14 @@ public final class ControlPanel2 {
 
 	public ButtonSetting buttonSetting(String label) {
 		ButtonSetting res = new ButtonSetting(label);
+
+		settings.add(res);
+
+		return res;
+	}
+
+	public DropdownMenuSetting dropdownMenuSetting(String label, String[] options, int value) {
+		DropdownMenuSetting res = new DropdownMenuSetting(label, options, value);
 
 		settings.add(res);
 
@@ -106,7 +111,7 @@ public final class ControlPanel2 {
 			panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 			panel.add(Box.createHorizontalGlue());
 			panel.add(Box.createHorizontalStrut(16));
-			panel.add(new JLabel(label + ":"));
+			panel.add(new JLabel(label));
 			panel.add(setWidth(slider, 150));
 			panel.add(setWidth(valueLabel, 35));
 			
@@ -173,13 +178,49 @@ public final class ControlPanel2 {
 
 			return panel;
 		}
-		
+
 		public boolean getSignal() {
 			boolean res = signalPending;
-			
+
 			signalPending = false;
-			
+
 			return res;
+		}
+	}
+
+	public static final class DropdownMenuSetting extends Setting {
+		public int value;
+		private final String[] options;
+
+		private DropdownMenuSetting(String label, String[] options, int value) {
+			super(label);
+			this.value = value;
+			this.options = options;
+		}
+
+		@Override
+		public JPanel makePanel() {
+			final JComboBox comboBox = new JComboBox(options);
+			
+			comboBox.setSelectedIndex(value);
+			comboBox.setMaximumSize(comboBox.getPreferredSize());
+			comboBox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					value = comboBox.getSelectedIndex();
+				}
+			});
+
+			JPanel panel = new JPanel();
+			panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+			panel.add(Box.createHorizontalGlue());
+			panel.add(Box.createHorizontalStrut(16));
+			panel.add(new JLabel(label));
+			panel.add(Box.createHorizontalStrut(8));
+			panel.add(comboBox);
+			panel.add(Box.createHorizontalStrut(176 - comboBox.getPreferredSize().width));
+
+			return panel;
 		}
 	}
 }
