@@ -2,8 +2,11 @@ package ch.zhaw.headtracker.gui;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import javax.jnlp.BasicService;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -43,6 +46,14 @@ public final class ControlPanel2 {
 
 	public CheckBoxSetting checkBoxSetting(String label, boolean value) {
 		CheckBoxSetting res = new CheckBoxSetting(label, value);
+
+		settings.add(res);
+
+		return res;
+	}
+
+	public ButtonSetting buttonSetting(String label) {
+		ButtonSetting res = new ButtonSetting(label);
 
 		settings.add(res);
 
@@ -109,12 +120,12 @@ public final class ControlPanel2 {
 
 	public static final class CheckBoxSetting extends Setting {
 		public boolean value;
-		
+
 		private CheckBoxSetting(String label, boolean value) {
 			super(label);
 			this.value = value;
 		}
-		
+
 		@Override
 		public JPanel makePanel() {
 			final JCheckBox checkBox = new JCheckBox(label, value);
@@ -125,13 +136,50 @@ public final class ControlPanel2 {
 					value = checkBox.isSelected();
 				}
 			});
-			
+
 			JPanel panel = new JPanel();
 			panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 			panel.add(Box.createHorizontalGlue());
-			panel.add(setWidth(checkBox, 180));
-			
+			panel.add(setWidth(checkBox, 178));
+
 			return panel;
+		}
+	}
+
+	public static final class ButtonSetting extends Setting {
+		private boolean signalPending = false;
+
+		private ButtonSetting(String label) {
+			super(label);
+		}
+
+		@Override
+		public JPanel makePanel() {
+			JButton button = new JButton(label);
+
+			button.putClientProperty("JButton.buttonType", "gradient");
+			button.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					signalPending = true;
+				}
+			});
+
+			JPanel panel = new JPanel();
+			panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+			panel.add(Box.createHorizontalGlue());
+			panel.add(button);
+			panel.add(Box.createHorizontalGlue());
+
+			return panel;
+		}
+		
+		public boolean getSignal() {
+			boolean res = signalPending;
+			
+			signalPending = false;
+			
+			return res;
 		}
 	}
 }

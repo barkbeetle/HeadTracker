@@ -10,6 +10,7 @@ import java.util.Set;
 
 import static ch.zhaw.headtracker.gui.ControlPanel2.CheckBoxSetting;
 import static ch.zhaw.headtracker.gui.ControlPanel2.SliderSetting;
+import static ch.zhaw.headtracker.gui.ControlPanel2.ButtonSetting;
 
 public final class Algorithm {
 	private final ImageGrabber grabber;
@@ -22,6 +23,7 @@ public final class Algorithm {
 	private final CheckBoxSetting showOriginal = controlPanel.checkBoxSetting("Show original", false);
 	private final CheckBoxSetting showPlummets = controlPanel.checkBoxSetting("Show plummets", true);
 	private final CheckBoxSetting showSegmentation = controlPanel.checkBoxSetting("Show segmentation", true);
+	private final ButtonSetting resetBackground = controlPanel.buttonSetting("Reset Background");
 
 	public Algorithm(ImageGrabber grabber) {
 		this.grabber = grabber;
@@ -40,7 +42,12 @@ public final class Algorithm {
 					Image background = ImageUtil.scaleDown(grabber.getImage(), 2);
 
 					while (true) {
-						view.update(algorithm(background, ImageUtil.scaleDown(grabber.getImage(), 2)));
+						Image image = ImageUtil.scaleDown(grabber.getImage(), 2);
+						
+						if (resetBackground.getSignal())
+							background = new Image(image);
+						
+						view.update(algorithm(background, image));
 
 						Thread.sleep(100);
 					}
