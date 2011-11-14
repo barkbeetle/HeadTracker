@@ -17,11 +17,11 @@ import static ch.zhaw.headtracker.algorithm.ControlPanel.*;
 
 public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 	private final PictureShop pictureShop = new PictureShop("res/3d/jack/out/jack%04d.png", 0, 40);
-	private final DropdownMenuSetting showImage = new DropdownMenuSetting("Show image", new String[]{"Original", "Mask", "Black / White"}, 2);
+	private final DropdownMenuSetting showImage = new DropdownMenuSetting("Show image", new String[]{"Original", "Mask", "Black / White"}, 0);
 	private final SliderSetting filterThreshold = new SliderSetting("Background threshold", 0, 50, 10);
 	private final SliderSetting opening = new SliderSetting("Opening", 0, 50, 10);
 	//	private final SliderSetting maximum = controlPanel.sliderSetting("Maximum", 0, 50, 10);
-	private final SliderSetting contrastThreshold = new SliderSetting("Contrast threshold", 0, 255, 100);
+	private final SliderSetting contrastThreshold = new SliderSetting("Contrast threshold", 0, 255, 42);
 	//	private final CheckBoxSetting showPlummets = controlPanel.checkBoxSetting("Show plummets", true);
 	private final CheckBoxSetting showAnimation = new CheckBoxSetting("Show animation", false);
 	private final CheckBoxSetting showSegmentation = new CheckBoxSetting("Show segmentation", true);
@@ -91,10 +91,13 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 
 				if (showSegmentation.value) {
 					for (EyePoint eyePoint : eyePoints) {
-						if (eyePoint.hitRatio > 4) {
-							g2.draw(new Rectangle2D.Double(eyePoint.group.left - .5, eyePoint.group.top - .5, eyePoint.group.right - eyePoint.group.left, eyePoint.group.bottom - eyePoint.group.top));
-							//g2.drawString(String.format("%d", i.sum), i.left, i.top);
+						if (eyePoint.hitRatio > 10) {
+							g2.setPaint(Color.green);
+						} else {
+							g2.setPaint(Color.red);
 						}
+						g2.draw(new Rectangle2D.Double(eyePoint.group.left - .5, eyePoint.group.top - .5, eyePoint.group.right - eyePoint.group.left, eyePoint.group.bottom - eyePoint.group.top));
+						//g2.drawString(String.format("%d", i.sum), i.left, i.top);
 					}
 				}
 
@@ -173,7 +176,6 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 		for (EyePoint p : eyePoints) {
 			if (eyePoint.getDistance(p) < 20) {
 				p.setGroup(eyePoint.group);
-				p.timestamp = System.currentTimeMillis();
 				p.timestamp = frame;
 				if (p.hitRatio < 1000)
 					p.hitRatio++;
@@ -181,13 +183,14 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 				break;
 			}
 		}
-		eyePoints.add(eyePoint);
+		if (!similar)
+			eyePoints.add(eyePoint);
 	}
 
 	private void cleanUpEyePoints() {
 		final List<EyePoint> toBeRemoved = new ArrayList<EyePoint>();
 		for (EyePoint eyePoint : eyePoints) {
-			if (eyePoint.timestamp < frame - 3) {
+			if (eyePoint.timestamp < frame - 2) {
 				toBeRemoved.add(eyePoint);
 			}
 		}
@@ -207,7 +210,7 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 			this.timestamp = frame;
 			this.hitRatio = 0;
 		}
-		
+
 		public void setGroup(Segmentation.Group group) {
 			this.group = group;
 			x = (float) group.posSumX / group.sum;
