@@ -4,7 +4,7 @@ import ch.zhaw.headtracker.image.Image;
 import ch.zhaw.headtracker.image.*;
 import java.awt.*;
 
-import static ch.zhaw.headtracker.gui.ControlPanel.*;
+import static ch.zhaw.headtracker.algorithm.ControlPanel.*;
 
 public final class Algorithm2 implements AlgorithmRunner.Algorithm {
 	private final DropdownMenuSetting showImage = new DropdownMenuSetting("Show image", new String[]{ "Background", "Original", "Update mask", "Segmentation mask", "Segmented image" }, 0);

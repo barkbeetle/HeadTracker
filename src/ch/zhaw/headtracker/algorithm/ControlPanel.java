@@ -1,26 +1,16 @@
-package ch.zhaw.headtracker.gui;
+package ch.zhaw.headtracker.algorithm;
 
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.event.*;
-import java.util.ArrayList;
-import java.util.List;
-import javax.jnlp.BasicService;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
-public final class ControlPanel2 {
+public final class ControlPanel {
 	private final JDialog dialog = new JDialog();
-	private final List<Setting> settings = new ArrayList<Setting>();
 	
-	public ControlPanel2() {
-		dialog.setAlwaysOnTop(true);
-		dialog.setResizable(false);
-		dialog.setLayout(new BoxLayout(dialog.getContentPane(), BoxLayout.PAGE_AXIS));
-		dialog.getRootPane().putClientProperty("Window.style", "small");
-	}
-
-	public void show(Point location) {
+	public ControlPanel(Setting ... settings) {
 		dialog.add(Box.createVerticalStrut(10));
 
 		for (Setting i : settings)
@@ -28,41 +18,16 @@ public final class ControlPanel2 {
 
 		dialog.add(Box.createVerticalStrut(16));
 		
+		dialog.setAlwaysOnTop(true);
+		dialog.setResizable(false);
+		dialog.setLayout(new BoxLayout(dialog.getContentPane(), BoxLayout.PAGE_AXIS));
+		dialog.getRootPane().putClientProperty("Window.style", "small");
+	}
+
+	public void show(Point location) {
 		dialog.setLocation(location);
 		dialog.pack();
 		dialog.setVisible(true);
-	}
-	
-	public SliderSetting sliderSetting(String label, int minValue, int maxValue, int value) {
-		SliderSetting res = new SliderSetting(label, minValue, maxValue, value);
-		
-		settings.add(res);
-		
-		return res;
-	}
-
-	public CheckBoxSetting checkBoxSetting(String label, boolean value) {
-		CheckBoxSetting res = new CheckBoxSetting(label, value);
-
-		settings.add(res);
-
-		return res;
-	}
-
-	public ButtonSetting buttonSetting(String label) {
-		ButtonSetting res = new ButtonSetting(label);
-
-		settings.add(res);
-
-		return res;
-	}
-
-	public DropdownMenuSetting dropdownMenuSetting(String label, String[] options, int value) {
-		DropdownMenuSetting res = new DropdownMenuSetting(label, options, value);
-
-		settings.add(res);
-
-		return res;
 	}
 	
 	private static JComponent setWidth(JComponent component, int width) {
@@ -81,13 +46,40 @@ public final class ControlPanel2 {
 
 		public abstract JPanel makePanel();
 	}
+	
+	public static final class Heading extends Setting {
+		public Heading(String label) {
+			super(label);
+		}
+
+		@Override
+		public JPanel makePanel() {
+			JLabel jlabel = new JLabel(label);
+			jlabel.setFont(new Font("Lucida Grande", Font.BOLD, 12));
+		//	jlabel.setMinimumSize();
+			
+			JPanel innerPanel = new JPanel();
+			innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.LINE_AXIS));
+			innerPanel.add(Box.createHorizontalStrut(10));
+			innerPanel.add(jlabel);
+			innerPanel.add(Box.createHorizontalGlue());
+			
+			JPanel panel = new JPanel();
+			panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+			panel.add(Box.createVerticalStrut(10));
+			panel.add(innerPanel);
+			panel.add(Box.createVerticalStrut(5));
+
+			return panel;
+		}
+	}
 
 	public static final class SliderSetting extends Setting {
 		public int value;
 		public final int minValue;
 		public final int maxValue;
 
-		private SliderSetting(String label, int minValue, int maxValue, int value) {
+		public SliderSetting(String label, int minValue, int maxValue, int value) {
 			super(label);
 			this.value = value;
 			this.minValue = minValue;
@@ -126,7 +118,7 @@ public final class ControlPanel2 {
 	public static final class CheckBoxSetting extends Setting {
 		public boolean value;
 
-		private CheckBoxSetting(String label, boolean value) {
+		public CheckBoxSetting(String label, boolean value) {
 			super(label);
 			this.value = value;
 		}
@@ -154,7 +146,7 @@ public final class ControlPanel2 {
 	public static final class ButtonSetting extends Setting {
 		private boolean signalPending = false;
 
-		private ButtonSetting(String label) {
+		public ButtonSetting(String label) {
 			super(label);
 		}
 
@@ -192,7 +184,7 @@ public final class ControlPanel2 {
 		public int value;
 		private final String[] options;
 
-		private DropdownMenuSetting(String label, String[] options, int value) {
+		public DropdownMenuSetting(String label, String[] options, int value) {
 			super(label);
 			this.value = value;
 			this.options = options;
@@ -218,7 +210,8 @@ public final class ControlPanel2 {
 			panel.add(new JLabel(label));
 			panel.add(Box.createHorizontalStrut(8));
 			panel.add(comboBox);
-			panel.add(Box.createHorizontalStrut(176 - comboBox.getPreferredSize().width));
+		//	panel.add(Box.createHorizontalStrut(176 - comboBox.getPreferredSize().width));
+			panel.add(Box.createHorizontalStrut(210 - comboBox.getPreferredSize().width));
 
 			return panel;
 		}

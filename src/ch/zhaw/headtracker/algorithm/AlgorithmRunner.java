@@ -1,6 +1,5 @@
 package ch.zhaw.headtracker.algorithm;
 
-import ch.zhaw.headtracker.gui.ControlPanel;
 import ch.zhaw.headtracker.image.*;
 import java.awt.Point;
 import java.util.*;

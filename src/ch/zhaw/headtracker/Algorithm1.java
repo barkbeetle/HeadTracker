@@ -1,15 +1,15 @@
 package ch.zhaw.headtracker;
 
 import ch.zhaw.headtracker.algorithm.AlgorithmRunner;
+import ch.zhaw.headtracker.algorithm.ControlPanel;
 import ch.zhaw.headtracker.animation.PictureShop;
-import ch.zhaw.headtracker.gui.ControlPanel;
 import ch.zhaw.headtracker.image.Image;
 import ch.zhaw.headtracker.image.*;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.util.Set;
 
-import static ch.zhaw.headtracker.gui.ControlPanel.*;
+import static ch.zhaw.headtracker.algorithm.ControlPanel.*;
 
 public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 	private final PictureShop pictureShop = new PictureShop("res/3d/jack/out/jack%04d.png", 0, 40);
