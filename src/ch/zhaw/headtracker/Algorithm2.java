@@ -1,23 +1,22 @@
 package ch.zhaw.headtracker;
 
+import ch.zhaw.headtracker.gui.ControlPanel;
 import ch.zhaw.headtracker.gui.ControlPanel2;
 import ch.zhaw.headtracker.image.Image;
 import ch.zhaw.headtracker.image.*;
 import java.awt.*;
 
-import static ch.zhaw.headtracker.gui.ControlPanel2.*;
+import static ch.zhaw.headtracker.gui.ControlPanel.*;
 
 public final class Algorithm2 {
 	private final ImageGrabber grabber;
-	private final ImageView view = new ImageView(752, 480);
-	private final ControlPanel2 controlPanel = new ControlPanel2();
-	private final DropdownMenuSetting showImage = controlPanel.dropdownMenuSetting("Show image", new String[]{ "Background", "Original", "Update mask", "Segmentation mask", "Segmented image" }, 0);
-	private final SliderSetting changeThreshold = controlPanel.sliderSetting("Update threshold", 0, 255, 5);
-	private final SliderSetting growRadius = controlPanel.sliderSetting("Update grow radius", 0, 50, 1);
-	private final SliderSetting updateDelay = controlPanel.sliderSetting("Update delay", 0, 255, 15);
-	private final SliderSetting segmentationThreshold = controlPanel.sliderSetting("Segmentation threshold", 0, 255, 6);
-	private final SliderSetting segmentationClosing = controlPanel.sliderSetting("Segmentation closing radius", 0, 255, 2);
-	private final ButtonSetting resetBackground = controlPanel.buttonSetting("Reset Background");
+	private final DropdownMenuSetting showImage = new DropdownMenuSetting("Show image", new String[]{ "Background", "Original", "Update mask", "Segmentation mask", "Segmented image" }, 0);
+	private final SliderSetting changeThreshold = new SliderSetting("Update threshold", 0, 255, 5);
+	private final SliderSetting growRadius = new SliderSetting("Update grow radius", 0, 50, 1);
+	private final SliderSetting updateDelay = new SliderSetting("Update delay", 0, 255, 15);
+	private final SliderSetting segmentationThreshold = new SliderSetting("Segmentation threshold", 0, 255, 6);
+	private final SliderSetting segmentationClosing = new SliderSetting("Segmentation closing radius", 0, 255, 2);
+	private final ButtonSetting resetBackground = new ButtonSetting("Reset Background");
 	
 	private Image background = null;
 	private Image lastImage = null;
@@ -28,6 +27,9 @@ public final class Algorithm2 {
 	}
 
 	public void run() {
+		final ImageView view = new ImageView(752, 480);
+		ControlPanel controlPanel = new ControlPanel(new Heading("View settings"), showImage, new Heading("Algorithm settings"), changeThreshold, growRadius, updateDelay, segmentationClosing, segmentationClosing, resetBackground);
+		
 		view.show(new Point(80, 100));
 		controlPanel.show(new Point(752 + 10 + 80, 100));
 
