@@ -29,6 +29,7 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 	private Image background = null;
 
 	private final List<EyePoint> eyePoints = new ArrayList<EyePoint>();
+	private int frame = 0;
 
 	@Override
 	public ControlPanel.Setting[] getSettings() {
@@ -37,6 +38,8 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 
 	@Override
 	public ImageView.Painter run(final Image image) {
+		frame++;
+
 		if (resetBackground.getSignal() || background == null)
 			background = new Image(image);
 
@@ -172,7 +175,7 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 				p.y = eyePoint.y;
 				p.width = eyePoint.width;
 				p.height = eyePoint.height;
-				p.timestamp = System.currentTimeMillis();
+				p.timestamp = frame;
 				if (p.hitRatio < 1000)
 					p.hitRatio++;
 				similar = true;
@@ -185,7 +188,7 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 	private void cleanUpEyePoints() {
 		final List<EyePoint> toBeRemoved = new ArrayList<EyePoint>();
 		for (EyePoint eyePoint : eyePoints) {
-			if (eyePoint.timestamp < System.currentTimeMillis() - 500) {
+			if (eyePoint.timestamp < frame - 3) {
 				toBeRemoved.add(eyePoint);
 			}
 		}
@@ -194,20 +197,20 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 		}
 	}
 
-	public static class EyePoint {
+	protected class EyePoint {
 		public int x;
 		public int y;
 		public int width;
 		public int height;
-		public long timestamp = 0;
-		public int hitRatio = 0;
+		public long timestamp;
+		public int hitRatio;
 
 		public EyePoint(int x, int y, int width, int height) {
 			this.x = x;
 			this.y = y;
 			this.width = width;
 			this.height = height;
-			this.timestamp = System.currentTimeMillis();
+			this.timestamp = frame;
 			this.hitRatio = 0;
 		}
 
