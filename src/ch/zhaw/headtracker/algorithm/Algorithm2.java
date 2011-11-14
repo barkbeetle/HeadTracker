@@ -27,6 +27,7 @@ public final class Algorithm2 implements AlgorithmRunner.Algorithm {
 		return new Setting[] { showImage, changeThreshold, growRadius, updateDelay, segmentationClosing, segmentationClosing, resetBackground };
 	}
 
+	@Override
 	public ImageView.Painter run(final Image image) {
 		if (resetBackground.getSignal() || background == null) {
 			background = new Image(image.width, image.height);

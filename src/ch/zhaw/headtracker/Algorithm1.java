@@ -1,67 +1,39 @@
 package ch.zhaw.headtracker;
 
-import ch.zhaw.headtracker.Segmentation;
+import ch.zhaw.headtracker.algorithm.AlgorithmRunner;
 import ch.zhaw.headtracker.animation.PictureShop;
-import ch.zhaw.headtracker.gui.ControlPanel2;
+import ch.zhaw.headtracker.gui.ControlPanel;
 import ch.zhaw.headtracker.image.Image;
 import ch.zhaw.headtracker.image.*;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.util.Set;
 
-import static ch.zhaw.headtracker.gui.ControlPanel2.*;
+import static ch.zhaw.headtracker.gui.ControlPanel.*;
 
-public final class Algorithm {
-	private final ImageGrabber grabber;
+public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 	private final PictureShop pictureShop = new PictureShop("res/3d/jack/out/jack%04d.png", 0, 40);
-	private final ImageView view = new ImageView(752, 480);
-	private final ControlPanel2 controlPanel = new ControlPanel2();
-	private final DropdownMenuSetting showImage = controlPanel.dropdownMenuSetting("Show image", new String[]{ "Original", "Mask", "Black / White" }, 2);
-	private final SliderSetting filterThreshold = controlPanel.sliderSetting("Background threshold", 0, 50, 10);
-	private final SliderSetting opening = controlPanel.sliderSetting("Opening", 0, 50, 10);
+	private final DropdownMenuSetting showImage = new DropdownMenuSetting("Show image", new String[]{ "Original", "Mask", "Black / White" }, 2);
+	private final SliderSetting filterThreshold = new SliderSetting("Background threshold", 0, 50, 10);
+	private final SliderSetting opening = new SliderSetting("Opening", 0, 50, 10);
 //	private final SliderSetting maximum = controlPanel.sliderSetting("Maximum", 0, 50, 10);
-	private final SliderSetting contrastThreshold = controlPanel.sliderSetting("Contrast threshold", 0, 255, 100);
+	private final SliderSetting contrastThreshold = new SliderSetting("Contrast threshold", 0, 255, 100);
 //	private final CheckBoxSetting showPlummets = controlPanel.checkBoxSetting("Show plummets", true);
-	private final CheckBoxSetting showAnimation = controlPanel.checkBoxSetting("Show animation", false);
-	private final CheckBoxSetting showSegmentation = controlPanel.checkBoxSetting("Show segmentation", true);
-	private final ButtonSetting resetBackground = controlPanel.buttonSetting("Reset Background");
+	private final CheckBoxSetting showAnimation = new CheckBoxSetting("Show animation", false);
+	private final CheckBoxSetting showSegmentation = new CheckBoxSetting("Show segmentation", true);
+	private final ButtonSetting resetBackground = new ButtonSetting("Reset Background");
+	private Image background = null;
 
-	public Algorithm(ImageGrabber grabber) {
-		this.grabber = grabber;
+	@Override
+	public ControlPanel.Setting[] getSettings() {
+		return new ControlPanel.Setting[] { showImage, filterThreshold, opening, contrastThreshold, showAnimation, showAnimation, showSegmentation, resetBackground };
 	}
 
-	public void run() {
-		view.show(new Point(80, 100));
-		controlPanel.show(new Point(752 + 10 + 80, 100));
-
-		Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					grabber.getImage(); // Sometimes the camera fails to set the exposure time correctly for the first image
-					
-					Image background = ImageUtil.scaleDown(grabber.getImage(), 2);
-
-					while (true) {
-						Image image = ImageUtil.scaleDown(grabber.getImage(), 2);
-						
-						if (resetBackground.getSignal())
-							background = new Image(image);
-						
-						view.update(algorithm(background, image));
-
-						Thread.sleep(100);
-					}
-				} catch (Throwable e) {
-					e.printStackTrace();
-				}
-			}
-		});
-
-		thread.start();
-	}
-
-	private ImageView.Painter algorithm(Image background, final Image image) {
+	@Override
+	public ImageView.Painter run(final Image image) {
+		if (resetBackground.getSignal() || background == null)
+			background = new Image(image.width, image.height);
+		
 		final Image mask = new Image(image.width, image.height);
 
 		for(int y = 0; y < image.height; y += 1) {
