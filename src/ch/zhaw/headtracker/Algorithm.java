@@ -1,20 +1,18 @@
 package ch.zhaw.headtracker;
 
+import ch.zhaw.headtracker.animation.PictureShop;
 import ch.zhaw.headtracker.gui.ControlPanel2;
 import ch.zhaw.headtracker.image.Image;
 import ch.zhaw.headtracker.image.*;
 import java.awt.*;
-import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Set;
 
-import static ch.zhaw.headtracker.gui.ControlPanel2.CheckBoxSetting;
-import static ch.zhaw.headtracker.gui.ControlPanel2.SliderSetting;
-import static ch.zhaw.headtracker.gui.ControlPanel2.ButtonSetting;
-import static ch.zhaw.headtracker.gui.ControlPanel2.DropdownMenuSetting;
+import static ch.zhaw.headtracker.gui.ControlPanel2.*;
 
 public final class Algorithm {
 	private final ImageGrabber grabber;
+	private final PictureShop pictureShop = new PictureShop("res/3d/jack/out/jack%04d.png", 0, 40);
 	private final ImageView view = new ImageView(752, 480);
 	private final ControlPanel2 controlPanel = new ControlPanel2();
 	private final DropdownMenuSetting showImage = controlPanel.dropdownMenuSetting("Show image", new String[]{ "Original", "Mask", "Black / White" }, 2);
@@ -23,6 +21,7 @@ public final class Algorithm {
 //	private final SliderSetting maximum = controlPanel.sliderSetting("Maximum", 0, 50, 10);
 	private final SliderSetting contrastThreshold = controlPanel.sliderSetting("Contrast threshold", 0, 255, 100);
 //	private final CheckBoxSetting showPlummets = controlPanel.checkBoxSetting("Show plummets", true);
+	private final CheckBoxSetting showAnimation = controlPanel.checkBoxSetting("Show animation", false);
 	private final CheckBoxSetting showSegmentation = controlPanel.checkBoxSetting("Show segmentation", true);
 	private final ButtonSetting resetBackground = controlPanel.buttonSetting("Reset Background");
 
@@ -96,6 +95,10 @@ public final class Algorithm {
 			@Override
 			public void draw(Graphics2D g2) {
 				g2.setPaint(Color.red);
+				if (showAnimation.value)
+				{
+					g2.drawImage(pictureShop.getImageForAngle(0f), 0, 0, 752 / 2, 480 / 2, null);
+				}
 				
 				if (showSegmentation.value) {
 					for (Segmentation.Group i : groups) {
