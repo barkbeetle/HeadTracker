@@ -1,8 +1,7 @@
 package ch.zhaw.headtracker.algorithm;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -30,6 +29,8 @@ public final class ControlPanel {
 		dialog.setVisible(true);
 	}
 	
+	public static final int controlColumnWidth = 190;
+	
 	private static JComponent setWidth(JComponent component, int width) {
 		component.setPreferredSize(new Dimension(width, component.getPreferredSize().height));
 		component.setMaximumSize(new Dimension(width, Integer.MAX_VALUE));
@@ -56,7 +57,6 @@ public final class ControlPanel {
 		public JPanel makePanel() {
 			JLabel jlabel = new JLabel(label);
 			jlabel.setFont(new Font("Lucida Grande", Font.BOLD, 12));
-		//	jlabel.setMinimumSize();
 			
 			JPanel innerPanel = new JPanel();
 			innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.LINE_AXIS));
@@ -104,8 +104,8 @@ public final class ControlPanel {
 			panel.add(Box.createHorizontalGlue());
 			panel.add(Box.createHorizontalStrut(16));
 			panel.add(new JLabel(label));
-			panel.add(setWidth(slider, 150));
-			panel.add(setWidth(valueLabel, 35));
+			panel.add(setWidth(slider, controlColumnWidth - 40));
+			panel.add(setWidth(valueLabel, 40));
 			
 			return panel;
 		}
@@ -137,7 +137,7 @@ public final class ControlPanel {
 			JPanel panel = new JPanel();
 			panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 			panel.add(Box.createHorizontalGlue());
-			panel.add(setWidth(checkBox, 178));
+			panel.add(setWidth(checkBox, controlColumnWidth - 7));
 
 			return panel;
 		}
@@ -153,7 +153,6 @@ public final class ControlPanel {
 		@Override
 		public JPanel makePanel() {
 			JButton button = new JButton(label);
-
 			button.putClientProperty("JButton.buttonType", "gradient");
 			button.addActionListener(new ActionListener() {
 				@Override
@@ -193,7 +192,7 @@ public final class ControlPanel {
 		@Override
 		public JPanel makePanel() {
 			final JComboBox comboBox = new JComboBox(options);
-			
+
 			comboBox.setSelectedIndex(value);
 			comboBox.setMaximumSize(comboBox.getPreferredSize());
 			comboBox.addActionListener(new ActionListener() {
@@ -210,8 +209,38 @@ public final class ControlPanel {
 			panel.add(new JLabel(label));
 			panel.add(Box.createHorizontalStrut(8));
 			panel.add(comboBox);
-		//	panel.add(Box.createHorizontalStrut(176 - comboBox.getPreferredSize().width));
-			panel.add(Box.createHorizontalStrut(210 - comboBox.getPreferredSize().width));
+			panel.add(Box.createHorizontalStrut(controlColumnWidth - comboBox.getPreferredSize().width - 8));
+
+			return panel;
+		}
+	}
+
+	public static final class TextFieldSetting extends Setting {
+		public String value;
+
+		public TextFieldSetting(String label, String value) {
+			super(label);
+			this.value = value;
+		}
+
+		@Override
+		public JPanel makePanel() {
+			final JTextField textField = new JTextField(value);
+			textField.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					value = textField.getText();
+				}
+			});
+			
+			JPanel panel = new JPanel();
+			panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+			panel.add(Box.createHorizontalGlue());
+			panel.add(Box.createHorizontalStrut(16));
+			panel.add(new JLabel(label));
+			panel.add(Box.createHorizontalStrut(11));
+			panel.add(setWidth(textField, 100));
+			panel.add(Box.createHorizontalStrut(controlColumnWidth - 111));
 
 			return panel;
 		}
