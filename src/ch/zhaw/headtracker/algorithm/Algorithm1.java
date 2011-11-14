@@ -27,7 +27,7 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 
 	@Override
 	public ControlPanel.Setting[] getSettings() {
-		return new ControlPanel.Setting[] { showImage, filterThreshold, opening, contrastThreshold, showAnimation, showAnimation, showSegmentation, resetBackground };
+		return new ControlPanel.Setting[] { showImage, filterThreshold, opening, contrastThreshold, showAnimation, showSegmentation, resetBackground };
 	}
 
 	@Override
@@ -53,7 +53,7 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 		ImageUtil.bitOr(maskedImage, mask);
 		ImageUtil.threshold(maskedImage, contrastThreshold.value);
 
-		final Set<Segmentation.Group> groups = Segmentation.findGroups(image);
+		final Set<Segmentation.Group> groups = Segmentation.findGroups(maskedImage);
 		
 		return new ImageView.Painter() {
 			@Override
@@ -66,9 +66,10 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 				
 				if (showSegmentation.value) {
 					for (Segmentation.Group i : groups) {
-						g2.draw(new Rectangle2D.Double(i.left - .5, i.top - .5, i.right - i.left + .5, i.bottom - i.top + .5));
-						
-						g2.drawString(String.format("%d", i.sum), i.left, i.top);
+						if(i.sum > 10 && i.sum < 50) {
+							g2.draw(new Rectangle2D.Double(i.left - .5, i.top - .5, i.right - i.left + .5, i.bottom - i.top + .5));
+							g2.drawString(String.format("%d", i.sum), i.left, i.top);
+						}
 					}
 				}
 

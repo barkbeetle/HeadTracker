@@ -18,7 +18,7 @@ public class FileInputMain {
 	}
 	
 	private static void test() {
-		ImageGrabber grabber = new FileImageGrabber("res/captures/capture.raw", 752, 480, .1f);
+		ImageGrabber grabber = new FileImageGrabber("res/captures/2011-11-14-20-00-41.raw", 752, 480, .1f);
 
 		AlgorithmRunner.runAlgorithm(new Algorithm1(), grabber);
 	}
