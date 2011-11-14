@@ -58,7 +58,7 @@ public final class SocketImageGrabber implements ImageGrabber {
 
 	@Override
 	public ControlPanel.Setting[] getSettings() {
-		return new ControlPanel.Setting[] { stillFrame, exposureTime, new ControlPanel.TextFieldSetting("foo", "bar") };
+		return new ControlPanel.Setting[] { stillFrame, exposureTime };
 	}
 
 	public static final class ExposureTimeSetting extends ControlPanel.Setting {
