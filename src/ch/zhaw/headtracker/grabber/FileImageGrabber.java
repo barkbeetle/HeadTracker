@@ -36,8 +36,12 @@ public final class FileImageGrabber implements ImageGrabber {
 
 		}
 		
-		if (lastImage == null || !stillFrame.value)
-			lastImage = Image.readFromStream(input, width, height);
+		try {
+			if (lastImage == null || !stillFrame.value)
+				lastImage = Image.readFromStream(input, width, height);
+		} catch (IOException ignored) {
+			input = null;
+		}
 
 		return lastImage;
 	}
