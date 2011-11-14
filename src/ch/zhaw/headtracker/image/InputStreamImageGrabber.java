@@ -1,5 +1,6 @@
 package ch.zhaw.headtracker.image;
 
+import ch.zhaw.headtracker.gui.ControlPanel;
 import java.io.*;
 import java.net.*;
 
@@ -17,6 +18,11 @@ public final class InputStreamImageGrabber implements ImageGrabber {
 	@Override
 	public Image getImage() throws IOException {
 		return Image.readFromStream(input, width, height);
+	}
+
+	@Override
+	public ControlPanel.Setting[] getSettings() {
+		return new ControlPanel.Setting[] { };
 	}
 
 	@SuppressWarnings({ "IOResourceOpenedButNotSafelyClosed" })
