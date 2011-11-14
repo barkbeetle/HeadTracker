@@ -71,7 +71,8 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 				match = false;
 
 			if (match) {
-				EyePoint eyePoint = new EyePoint(i.left, i.top, (i.right - i.left), (i.bottom - i.top));
+				EyePoint eyePoint = new EyePoint();
+				eyePoint.setGroup(i);
 				addEyePoint(eyePoint);
 			}
 		}
@@ -88,7 +89,7 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 				if (showSegmentation.value) {
 					for (EyePoint eyePoint : eyePoints) {
 						if (eyePoint.hitRatio > 4) {
-							g2.draw(new Rectangle2D.Double(eyePoint.x - .5, eyePoint.y - .5, eyePoint.width + .5, eyePoint.height + .5));
+							g2.draw(new Rectangle2D.Double(eyePoint.group.left - .5, eyePoint.group.top - .5, eyePoint.group.right - eyePoint.group.left, eyePoint.group.bottom - eyePoint.group.top));
 							//g2.drawString(String.format("%d", i.sum), i.left, i.top);
 						}
 					}
@@ -168,10 +169,7 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 		boolean similar = false;
 		for (EyePoint p : eyePoints) {
 			if (eyePoint.getDistance(p) < 20) {
-				p.x = eyePoint.x;
-				p.y = eyePoint.y;
-				p.width = eyePoint.width;
-				p.height = eyePoint.height;
+				p.setGroup(eyePoint.group);
 				p.timestamp = System.currentTimeMillis();
 				if (p.hitRatio < 1000)
 					p.hitRatio++;
@@ -194,21 +192,22 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 		}
 	}
 
-	public static class EyePoint {
-		public int x;
-		public int y;
-		public int width;
-		public int height;
+	public static final class EyePoint {
+		public float x;
+		public float y;
 		public long timestamp = 0;
 		public int hitRatio = 0;
+		public Segmentation.Group group;
 
-		public EyePoint(int x, int y, int width, int height) {
-			this.x = x;
-			this.y = y;
-			this.width = width;
-			this.height = height;
+		public EyePoint() {
 			this.timestamp = System.currentTimeMillis();
 			this.hitRatio = 0;
+		}
+		
+		public void setGroup(Segmentation.Group group) {
+			this.group = group;
+			x = (float) group.posSumX / group.sum;
+			y = (float) group.posSumX / group.sum;
 		}
 
 		public double getDistance(EyePoint other) {
