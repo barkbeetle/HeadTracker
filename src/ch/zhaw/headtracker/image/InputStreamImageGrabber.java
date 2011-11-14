@@ -8,6 +8,8 @@ public final class InputStreamImageGrabber implements ImageGrabber {
 	private final InputStream input;
 	private final int width;
 	private final int height;
+	private final ControlPanel.CheckBoxSetting stillFrame = new ControlPanel.CheckBoxSetting("Still frame", false);
+	private Image lastImage = null;
 
 	public InputStreamImageGrabber(InputStream input, int width, int height) {
 		this.input = input;
@@ -17,12 +19,15 @@ public final class InputStreamImageGrabber implements ImageGrabber {
 	
 	@Override
 	public Image getImage() throws IOException {
-		return Image.readFromStream(input, width, height);
+		if (lastImage == null || !stillFrame.value)
+			lastImage = Image.readFromStream(input, width, height);
+		
+		return lastImage;
 	}
 
 	@Override
 	public ControlPanel.Setting[] getSettings() {
-		return new ControlPanel.Setting[] { };
+		return new ControlPanel.Setting[] { stillFrame };
 	}
 
 	@SuppressWarnings({ "IOResourceOpenedButNotSafelyClosed" })
