@@ -55,7 +55,8 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 		}
 
 		ImageUtil.minimum(mask, opening.value);
-		ImageUtil.maximum(mask, opening.value);
+		ImageUtil.maximum(mask, opening.value * 2);
+		ImageUtil.minimum(mask, opening.value);
 
 		final Image maskedImage = new Image(image);
 		ImageUtil.bitOr(maskedImage, mask);
