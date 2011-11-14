@@ -17,7 +17,7 @@ import static ch.zhaw.headtracker.algorithm.ControlPanel.*;
 
 public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 	private final PictureShop pictureShop = new PictureShop("res/3d/jack/out/jack%04d.png", 0, 40);
-	private final DropdownMenuSetting showImage = new DropdownMenuSetting("Show image", new String[]{"Original", "Mask", "Black / White"}, 0);
+	private final DropdownMenuSetting showImage = new DropdownMenuSetting("Show image", new String[]{"Original", "Mask", "Masked image", "Black / White"}, 0);
 	private final SliderSetting filterThreshold = new SliderSetting("Background threshold", 0, 50, 10);
 	private final SliderSetting opening = new SliderSetting("Opening", 0, 50, 10);
 	//	private final SliderSetting maximum = controlPanel.sliderSetting("Maximum", 0, 50, 10);
@@ -55,13 +55,16 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 		}
 
 		ImageUtil.minimum(mask, opening.value);
-		ImageUtil.maximum(mask, opening.value);
+		ImageUtil.maximum(mask, opening.value * 2);
+		ImageUtil.minimum(mask, opening.value);
 
 		final Image maskedImage = new Image(image);
 		ImageUtil.bitOr(maskedImage, mask);
-		ImageUtil.threshold(maskedImage, contrastThreshold.value);
 
-		final Set<Segmentation.Group> groups = Segmentation.findGroups(maskedImage);
+		final Image bwImage = new Image(maskedImage);
+		ImageUtil.threshold(bwImage, contrastThreshold.value);
+
+		final Set<Segmentation.Group> groups = Segmentation.findGroups(bwImage);
 
 		for (Segmentation.Group i : groups) {
 			boolean match = true;
@@ -84,14 +87,13 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 		return new ImageView.Painter() {
 			@Override
 			public void draw(Graphics2D g2) {
-				g2.setPaint(Color.red);
 				if (showAnimation.value) {
 					g2.drawImage(pictureShop.getImageForAngle(0f), 0, 0, 752 / 2, 480 / 2, null);
 				}
 
 				if (showSegmentation.value) {
 					for (EyePoint eyePoint : eyePoints) {
-						if (eyePoint.hitRatio > 10) {
+						if (eyePoint.hitRatio > 4) {
 							g2.setPaint(Color.green);
 						} else {
 							g2.setPaint(Color.red);
@@ -121,8 +123,10 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 					return image;
 				else if (showImage.value == 1)
 					return mask;
-				else
+				else if (showImage.value == 2)
 					return maskedImage;
+				else
+					return bwImage;
 			}
 		};
 	}
