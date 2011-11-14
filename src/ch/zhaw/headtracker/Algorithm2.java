@@ -50,14 +50,14 @@ public final class Algorithm2 {
 		thread.start();
 	}
 
-	private ImageView.Painter algorithm(Image image) {
+	private ImageView.Painter algorithm(final Image image) {
 		if (resetBackground.getSignal() || background == null) {
 			background = new Image(image.width, image.height);
 			steadyCounter = new Image(image.width, image.height);
 			lastImage = new Image(image);
 		}
 
-		Image updateMask = differenceMask(image, lastImage, changeThreshold.value);
+		final Image updateMask = differenceMask(image, lastImage, changeThreshold.value);
 		
 		lastImage = new Image(image);
 
@@ -74,32 +74,53 @@ public final class Algorithm2 {
 			}
 		}
 		
-		Image segmentationMask = differenceMask(image, background, segmentationThreshold.value);
+		final Image segmentationMask = differenceMask(image, background, segmentationThreshold.value);
 		ImageUtil.minimum(segmentationMask, segmentationClosing.value);
 		ImageUtil.maximum(segmentationMask, segmentationClosing.value * 2);
 		ImageUtil.minimum(segmentationMask, segmentationClosing.value);
 		
-		Image segmentedImage = new Image(image);
+		final Image segmentedImage = new Image(image);
 		ImageUtil.bitOr(segmentedImage, segmentationMask);
+		
+		int[] segmentsOnLine = new int[image.height];
+		int maxSegmentsOnLine = 0;
+		
+		for (int iy = 0; iy < image.height; iy += 1) {
+			int numSegments = countLineSegments(segmentationMask, iy);
+			
+			maxSegmentsOnLine = Math.max(maxSegmentsOnLine, numSegments);
+			segmentsOnLine[iy] = numSegments;
+		}
+		
+		final int[] segmentsOnLineHistogram = new int[maxSegmentsOnLine + 1];
+		
+		for (int i : segmentsOnLine)
+			segmentsOnLineHistogram[i] += 1;
 
-		Image shownImage;
-
-		if (showImage.value == 0)
-			shownImage = background;
-		else if (showImage.value == 1)
-			shownImage = image;
-		else if (showImage.value == 2)
-			shownImage = updateMask;
-		else if (showImage.value == 3)
-			shownImage = segmentationMask;
-		else if (showImage.value == 4)
-			shownImage = segmentedImage;
-		else
-			shownImage = image;
-
-		return new ImageView.Painter(shownImage) {
+		return new ImageView.Painter() {
 			@Override
 			public void draw(Graphics2D g2) {
+				g2.setPaint(Color.red);
+				g2.setFont(new Font("Lucida Grande", Font.PLAIN, 8));
+				
+				for (int i = 0; i < segmentsOnLineHistogram.length; i += 1)
+					g2.drawString(String.format("%d: %d", i, segmentsOnLineHistogram[i]), 0, i * 10);
+			}
+
+			@Override
+			protected Image getImage() {
+				if (showImage.value == 0)
+					return background;
+				else if (showImage.value == 1)
+					return  image;
+				else if (showImage.value == 2)
+					return  updateMask;
+				else if (showImage.value == 3)
+					return  segmentationMask;
+				else if (showImage.value == 4)
+					return  segmentedImage;
+				else
+					return  image;
 			}
 		};
 	}
@@ -117,46 +138,20 @@ public final class Algorithm2 {
 		}
 		return res;
 	}
+	
+	static int countLineSegments(Image image, int y) {
+		int count = 0;
+		boolean lastInSegment = false;
 
-	// make black spots smaller than radius vanish
-	private static Image opening(Image image, int radius) {
-		Image res = new Image(image);
-
-		ImageUtil.maximum(res, radius);
-		ImageUtil.minimum(res, radius);
-
-		return res;
-	}
-
-	// make white spots smaller than radius vanish
-	private static Image closing(Image image, int radius) {
-		Image res = new Image(image);
-
-		ImageUtil.maximum(res, radius);
-		ImageUtil.minimum(res, radius);
-
-		return res;
-	}
-
-	private static int distanceLeft(Image mask, int x, int y) {
-		int distance = 0;
-		while(x >= 0) {
-			if(mask.getPixel(x, y) > 0)
-				return distance;
-			distance++;
-			x--;
+		for (int ix = 0; ix < image.width; ix += 1) {
+			boolean inSegment = image.getPixel(ix, y) == 0;
+			
+			if (inSegment && !lastInSegment)
+				count += 1;
+			
+			lastInSegment = inSegment;
 		}
-		return 0;
-	}
-
-	private static int distanceRight(Image mask, int x, int y) {
-		int distance = 0;
-		while(x < mask.width) {
-			if(mask.getPixel(x, y) > 0)
-				return distance;
-			distance++;
-			x++;
-		}
-		return 0;
+		
+		return count;
 	}
 }

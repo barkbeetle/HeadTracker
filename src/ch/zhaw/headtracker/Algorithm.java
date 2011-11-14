@@ -76,22 +76,13 @@ public final class Algorithm {
 		ImageUtil.minimum(mask, opening.value);
 		ImageUtil.maximum(mask, opening.value);
 
-		Image maskedImage = new Image(image);
+		final Image maskedImage = new Image(image);
 		ImageUtil.bitOr(maskedImage, mask);
 		ImageUtil.threshold(maskedImage, contrastThreshold.value);
 
 		final Set<Segmentation.Group> groups = Segmentation.findGroups(image);
-
-		Image shownImage;
-
-		if (showImage.value == 0)
-			shownImage = image;
-		else if (showImage.value == 1)
-			shownImage = mask;
-		else
-			shownImage = maskedImage;
-
-		return new ImageView.Painter(shownImage) {
+		
+		return new ImageView.Painter() {
 			@Override
 			public void draw(Graphics2D g2) {
 				g2.setPaint(Color.red);
@@ -119,6 +110,16 @@ public final class Algorithm {
 				g2.draw(new Line2D.Double(centerX - left, centerY, centerX - left + 4, centerY + 4));                   g2.draw(new Line2D.Double(centerX, centerY, centerX + right, centerY));
 				g2.draw(new Line2D.Double(centerX + right, centerY, centerX + right - 4, centerY - 4));
 				g2.draw(new Line2D.Double(centerX + right, centerY, centerX + right - 4, centerY + 4));*/
+			}
+
+			@Override
+			protected Image getImage() {
+				if (showImage.value == 0)
+					return image;
+				else if (showImage.value == 1)
+					return mask;
+				else
+					return maskedImage;
 			}
 		};
 	}

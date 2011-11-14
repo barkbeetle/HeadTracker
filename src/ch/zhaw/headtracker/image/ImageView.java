@@ -55,21 +55,16 @@ public final class ImageView {
 	}
 	
 	public abstract static class Painter {
-		private final BufferedImage bufferedImage;
-
-		protected Painter(Image image) {
+		public final void drawPainter(Graphics2D g2, int width, int height) {
+			Image image = getImage();
 			byte[] data = image.getData();
-			int width = image.width;
-			int height = image.height;
 			
 			DataBufferByte buffer = new DataBufferByte(data, data.length);
-			WritableRaster raster = Raster.createInterleavedRaster(buffer, width, height, width, 1, new int[] { 0 }, new Point());
-			bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+			WritableRaster raster = Raster.createInterleavedRaster(buffer, image.width, image.height, image.width, 1, new int[] { 0 }, new Point());
+			BufferedImage bufferedImage = new BufferedImage(image.width, image.height, BufferedImage.TYPE_BYTE_GRAY);
 
 			bufferedImage.setData(raster);
-		}
-		
-		public final void drawPainter(Graphics2D g2, int width, int height) {
+			
 			double scale = Math.min((double) width / bufferedImage.getWidth(), (double) height / bufferedImage.getHeight());
 
 			g2.setTransform(AffineTransform.getScaleInstance(scale, scale));
@@ -79,5 +74,6 @@ public final class ImageView {
 		}
 		
 		protected abstract void draw(Graphics2D g2);
+		protected abstract Image getImage();
 	}
 }
