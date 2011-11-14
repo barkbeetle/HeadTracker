@@ -33,7 +33,7 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 	@Override
 	public ImageView.Painter run(final Image image) {
 		if (resetBackground.getSignal() || background == null)
-			background = new Image(image.width, image.height);
+			background = new Image(image);
 		
 		final Image mask = new Image(image.width, image.height);
 

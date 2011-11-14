@@ -1,5 +1,6 @@
 package ch.zhaw.headtracker.algorithm;
 
+import ch.zhaw.headtracker.grabber.ImageGrabber;
 import ch.zhaw.headtracker.image.*;
 import java.awt.Point;
 import java.util.*;
@@ -27,8 +28,6 @@ public class AlgorithmRunner {
 				try {
 					while (true) {
 						view.update(algorithm.run(ImageUtil.scaleDown(grabber.getImage(), 2)));
-
-						Thread.sleep(100);
 					}
 				} catch (Throwable e) {
 					e.printStackTrace();

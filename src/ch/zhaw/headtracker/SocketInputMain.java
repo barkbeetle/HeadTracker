@@ -2,8 +2,8 @@ package ch.zhaw.headtracker;
 
 import ch.zhaw.headtracker.algorithm.Algorithm1;
 import ch.zhaw.headtracker.algorithm.AlgorithmRunner;
-import ch.zhaw.headtracker.image.ImageGrabber;
-import ch.zhaw.headtracker.image.InputStreamImageGrabber;
+import ch.zhaw.headtracker.grabber.ImageGrabber;
+import ch.zhaw.headtracker.grabber.SocketImageGrabber;
 import java.io.IOException;
 
 public class SocketInputMain {
@@ -20,7 +20,7 @@ public class SocketInputMain {
 
 	@SuppressWarnings({ "IOResourceOpenedButNotSafelyClosed" })
 	private static void test() throws IOException {
-		ImageGrabber grabber = InputStreamImageGrabber.fromSocketAddress("10.0.0.3", (short) 9999, 80000, 752, 480);
+		ImageGrabber grabber = new SocketImageGrabber("10.0.0.3", (short) 9999, 80000, 752, 480);
 
 		AlgorithmRunner.runAlgorithm(new Algorithm1(), grabber);
 	}

@@ -19,9 +19,6 @@ public final class Algorithm2 implements AlgorithmRunner.Algorithm {
 	private Image lastImage = null;
 	private Image steadyCounter = null; // Increased by one on each frame that's identical to the last frame;
 
-	public Algorithm2() {
-	}
-
 	@Override
 	public Setting[] getSettings() {
 		return new Setting[] { showImage, changeThreshold, growRadius, updateDelay, segmentationClosing, segmentationClosing, resetBackground };
