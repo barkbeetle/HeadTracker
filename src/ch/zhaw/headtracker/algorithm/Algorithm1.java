@@ -17,7 +17,7 @@ import static ch.zhaw.headtracker.algorithm.ControlPanel.*;
 
 public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 	private final PictureShop pictureShop = new PictureShop("res/3d/jack/out/jack%04d.png", 0, 40);
-	private final DropdownMenuSetting showImage = new DropdownMenuSetting("Show image", new String[]{"Original", "Mask", "Black / White"}, 2);
+	private final DropdownMenuSetting showImage = new DropdownMenuSetting("Show image", new String[]{"Original", "Mask", "Masked image", "Black / White"}, 2);
 	private final SliderSetting filterThreshold = new SliderSetting("Background threshold", 0, 50, 10);
 	private final SliderSetting opening = new SliderSetting("Opening", 0, 50, 10);
 	//	private final SliderSetting maximum = controlPanel.sliderSetting("Maximum", 0, 50, 10);
@@ -60,9 +60,11 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 
 		final Image maskedImage = new Image(image);
 		ImageUtil.bitOr(maskedImage, mask);
-		ImageUtil.threshold(maskedImage, contrastThreshold.value);
+		
+		final Image bwImage = new Image(maskedImage);
+		ImageUtil.threshold(bwImage, contrastThreshold.value);
 
-		final Set<Segmentation.Group> groups = Segmentation.findGroups(maskedImage);
+		final Set<Segmentation.Group> groups = Segmentation.findGroups(bwImage);
 
 		for (Segmentation.Group i : groups) {
 			boolean match = true;
@@ -85,7 +87,6 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 		return new ImageView.Painter() {
 			@Override
 			public void draw(Graphics2D g2) {
-				g2.setPaint(Color.red);
 				if (showAnimation.value) {
 					g2.drawImage(pictureShop.getImageForAngle(0f), 0, 0, 752 / 2, 480 / 2, null);
 				}
@@ -93,9 +94,13 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 				if (showSegmentation.value) {
 					for (EyePoint eyePoint : eyePoints) {
 						if (eyePoint.hitRatio > 4) {
-							g2.draw(new Rectangle2D.Double(eyePoint.group.left - .5, eyePoint.group.top - .5, eyePoint.group.right - eyePoint.group.left, eyePoint.group.bottom - eyePoint.group.top));
-							//g2.drawString(String.format("%d", i.sum), i.left, i.top);
+							g2.setPaint(Color.green);
+						} else {
+							g2.setPaint(Color.red);
 						}
+						
+						g2.draw(new Rectangle2D.Double(eyePoint.group.left - .5, eyePoint.group.top - .5, eyePoint.group.right - eyePoint.group.left, eyePoint.group.bottom - eyePoint.group.top));
+						//g2.drawString(String.format("%d", i.sum), i.left, i.top);
 					}
 				}
 
@@ -119,8 +124,10 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 					return image;
 				else if (showImage.value == 1)
 					return mask;
-				else
+				else if (showImage.value == 2)
 					return maskedImage;
+				else
+					return bwImage;
 			}
 		};
 	}
