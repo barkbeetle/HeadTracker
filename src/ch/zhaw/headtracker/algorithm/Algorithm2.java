@@ -1,15 +1,12 @@
-package ch.zhaw.headtracker;
+package ch.zhaw.headtracker.algorithm;
 
-import ch.zhaw.headtracker.gui.ControlPanel;
-import ch.zhaw.headtracker.gui.ControlPanel2;
 import ch.zhaw.headtracker.image.Image;
 import ch.zhaw.headtracker.image.*;
 import java.awt.*;
 
 import static ch.zhaw.headtracker.gui.ControlPanel.*;
 
-public final class Algorithm2 {
-	private final ImageGrabber grabber;
+public final class Algorithm2 implements AlgorithmRunner.Algorithm {
 	private final DropdownMenuSetting showImage = new DropdownMenuSetting("Show image", new String[]{ "Background", "Original", "Update mask", "Segmentation mask", "Segmented image" }, 0);
 	private final SliderSetting changeThreshold = new SliderSetting("Update threshold", 0, 255, 5);
 	private final SliderSetting growRadius = new SliderSetting("Update grow radius", 0, 50, 1);
@@ -22,37 +19,15 @@ public final class Algorithm2 {
 	private Image lastImage = null;
 	private Image steadyCounter = null; // Increased by one on each frame that's identical to the last frame;
 
-	public Algorithm2(ImageGrabber grabber) {
-		this.grabber = grabber;
+	public Algorithm2() {
 	}
 
-	public void run() {
-		final ImageView view = new ImageView(752, 480);
-		ControlPanel controlPanel = new ControlPanel(new Heading("View settings"), showImage, new Heading("Algorithm settings"), changeThreshold, growRadius, updateDelay, segmentationClosing, segmentationClosing, resetBackground);
-		
-		view.show(new Point(80, 100));
-		controlPanel.show(new Point(752 + 10 + 80, 100));
-
-		Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					while (true) {
-						view.update(algorithm(ImageUtil.scaleDown(grabber.getImage(), 2)));
-
-						Thread.sleep(100);
-					}
-				} catch (Throwable e) {
-					e.printStackTrace();
-				}
-			}
-		});
-
-		thread.setDaemon(true);
-		thread.start();
+	@Override
+	public Setting[] getSettings() {
+		return new Setting[] { showImage, changeThreshold, growRadius, updateDelay, segmentationClosing, segmentationClosing, resetBackground };
 	}
 
-	private ImageView.Painter algorithm(final Image image) {
+	public ImageView.Painter run(final Image image) {
 		if (resetBackground.getSignal() || background == null) {
 			background = new Image(image.width, image.height);
 			steadyCounter = new Image(image.width, image.height);

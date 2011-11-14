@@ -1,5 +1,6 @@
 package ch.zhaw.headtracker;
 
+import ch.zhaw.headtracker.Segmentation;
 import ch.zhaw.headtracker.animation.PictureShop;
 import ch.zhaw.headtracker.gui.ControlPanel2;
 import ch.zhaw.headtracker.image.Image;
@@ -57,7 +58,6 @@ public final class Algorithm {
 			}
 		});
 
-		thread.setDaemon(true);
 		thread.start();
 	}
 
