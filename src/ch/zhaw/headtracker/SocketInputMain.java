@@ -1,5 +1,6 @@
 package ch.zhaw.headtracker;
 
+import ch.zhaw.headtracker.algorithm.Algorithm1;
 import ch.zhaw.headtracker.algorithm.AlgorithmRunner;
 import ch.zhaw.headtracker.image.ImageGrabber;
 import ch.zhaw.headtracker.image.InputStreamImageGrabber;

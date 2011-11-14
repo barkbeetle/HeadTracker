@@ -1,5 +1,6 @@
-package ch.zhaw.headtracker;
+package ch.zhaw.headtracker.algorithm;
 
+import ch.zhaw.headtracker.Segmentation;
 import ch.zhaw.headtracker.algorithm.AlgorithmRunner;
 import ch.zhaw.headtracker.algorithm.ControlPanel;
 import ch.zhaw.headtracker.animation.PictureShop;
