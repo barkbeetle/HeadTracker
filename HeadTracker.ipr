@@ -232,6 +232,9 @@
       </item>
     </group>
   </component>
+  <component name="ProjectDictionaryState">
+    <dictionary name="sandro" />
+  </component>
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/HeadTracker.iml" filepath="$PROJECT_DIR$/HeadTracker.iml" />

@@ -18,22 +18,26 @@ import static ch.zhaw.headtracker.algorithm.ControlPanel.*;
 public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 	private final PictureShop pictureShop = new PictureShop("res/3d/jack/out/jack%04d.png", 0, 40);
 	private final DropdownMenuSetting showImage = new DropdownMenuSetting("Show image", new String[]{"Original", "Mask", "Masked image", "Black / White"}, 0);
+	private final CheckBoxSetting showAnimation = new CheckBoxSetting("Show animation", true);
 	private final SliderSetting filterThreshold = new SliderSetting("Background threshold", 0, 50, 10);
 	private final SliderSetting opening = new SliderSetting("Opening", 0, 50, 10);
 	//	private final SliderSetting maximum = controlPanel.sliderSetting("Maximum", 0, 50, 10);
 	private final SliderSetting contrastThreshold = new SliderSetting("Contrast threshold", 0, 255, 42);
 	//	private final CheckBoxSetting showPlummets = controlPanel.checkBoxSetting("Show plummets", true);
-	private final CheckBoxSetting showAnimation = new CheckBoxSetting("Show animation", false);
 	private final CheckBoxSetting showSegmentation = new CheckBoxSetting("Show segmentation", true);
 	private final ButtonSetting resetBackground = new ButtonSetting("Reset Background");
 	private Image background = null;
 
 	private final List<EyePoint> eyePoints = new ArrayList<EyePoint>();
+	private EyePoint leftEye = null;
+	private EyePoint rightEye = null;
+	private float headAngle = 0f;
+
 	private int frame = 0;
 
 	@Override
 	public ControlPanel.Setting[] getSettings() {
-		return new ControlPanel.Setting[]{showImage, filterThreshold, opening, contrastThreshold, showAnimation, showSegmentation, resetBackground};
+		return new ControlPanel.Setting[]{showImage, filterThreshold, opening, contrastThreshold, showSegmentation, resetBackground};
 	}
 
 	@Override
@@ -69,7 +73,7 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 		for (Segmentation.Group i : groups) {
 			boolean match = true;
 
-			if (i.sum < 5 || i.sum > 90)
+			if (i.sum < 30 || i.sum > 200)
 				match = false;
 			if ((float) (i.right - i.left) / (i.bottom - i.top) < 1)
 				match = false;
@@ -83,38 +87,48 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 			}
 		}
 		cleanUpEyePoints();
+		calculateEyePoints();
+
 
 		return new ImageView.Painter() {
 			@Override
 			public void draw(Graphics2D g2) {
 				if (showAnimation.value) {
-					g2.drawImage(pictureShop.getImageForAngle(0f), 0, 0, 752 / 2, 480 / 2, null);
+					g2.drawImage(pictureShop.getImageForAngle(headAngle), 0, 480 / 8 * 3, 752 / 8, 480 / 8, null);
 				}
 
-				if (showSegmentation.value) {
-					for (EyePoint eyePoint : eyePoints) {
-						if (eyePoint.hitRatio > 4) {
-							g2.setPaint(Color.green);
-						} else {
-							g2.setPaint(Color.red);
-						}
-						g2.draw(new Rectangle2D.Double(eyePoint.group.left - .5, eyePoint.group.top - .5, eyePoint.group.right - eyePoint.group.left, eyePoint.group.bottom - eyePoint.group.top));
-						//g2.drawString(String.format("%d", i.sum), i.left, i.top);
+				for (EyePoint eyePoint : eyePoints) {
+					g2.setPaint(Color.blue);
+					g2.setStroke(new BasicStroke(0.5f));
+					eyePoint.drawBounds(g2);
+				}
+
+				if (leftEye != null && rightEye != null) {
+					float centerX = (rightEye.x + leftEye.x) / 2;
+					float centerY = (rightEye.y + leftEye.y) / 2;
+
+					int left = distanceLeft(mask, (int) centerX, (int) centerY);
+					int right = distanceRight(mask, (int) centerX, (int) centerY);
+
+					headAngle = (float) left / (left + right) * 180 - 90;
+
+					if (showSegmentation.value) {
+						g2.setStroke(new BasicStroke(1f));
+						g2.setPaint(Color.red);
+						leftEye.drawBounds(g2);
+						g2.setPaint(Color.green);
+						rightEye.drawBounds(g2);
+
+						g2.setPaint(Color.blue);
+						g2.draw(new Line2D.Double((int) centerX, (int) centerY - 4, (int) centerX, (int) centerY + 4));
+						g2.draw(new Line2D.Double((int) centerX, (int) centerY, (int) centerX - left, (int) centerY));
+						g2.draw(new Line2D.Double((int) centerX - left, (int) centerY, (int) centerX - left + 4, (int) centerY - 4));
+						g2.draw(new Line2D.Double((int) centerX - left, (int) centerY, (int) centerX - left + 4, (int) centerY + 4));
+						g2.draw(new Line2D.Double((int) centerX, (int) centerY, (int) centerX + right, (int) centerY));
+						g2.draw(new Line2D.Double((int) centerX + right, (int) centerY, (int) centerX + right - 4, (int) centerY - 4));
+						g2.draw(new Line2D.Double((int) centerX + right, (int) centerY, (int) centerX + right - 4, (int) centerY + 4));
 					}
 				}
-
-				int centerX = mask.width / 2;
-				int centerY = mask.height / 2;
-				int left = distanceLeft(mask, centerX, centerY);
-				int right = distanceRight(mask, centerX, centerY);
-
-				g2.setPaint(Color.blue);
-				g2.draw(new Line2D.Double(centerX, centerY, centerX - left, centerY));
-				g2.draw(new Line2D.Double(centerX - left, centerY, centerX - left + 4, centerY - 4));
-				g2.draw(new Line2D.Double(centerX - left, centerY, centerX - left + 4, centerY + 4));
-				g2.draw(new Line2D.Double(centerX, centerY, centerX + right, centerY));
-				g2.draw(new Line2D.Double(centerX + right, centerY, centerX + right - 4, centerY - 4));
-				g2.draw(new Line2D.Double(centerX + right, centerY, centerX + right - 4, centerY + 4));
 			}
 
 			@Override
@@ -203,6 +217,37 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 		}
 	}
 
+	private void calculateEyePoints() {
+		final List<EyePoint> eyes = new ArrayList<EyePoint>();
+		for (EyePoint eyePoint : eyePoints) {
+			if (eyePoint.hitRatio > 5) {
+				eyes.add(eyePoint);
+			}
+		}
+		boolean isPossible = true;
+		if (eyes.size() != 2)
+			isPossible = false;
+		else if (eyes.get(0).getDistance(eyes.get(1)) > 200)
+			isPossible = false;
+		else if (Math.abs(eyes.get(0).x - eyes.get(1).x) < 20)
+			isPossible = false;
+		else if (Math.abs((eyes.get(0).y - eyes.get(1).y) / (eyes.get(0).x - eyes.get(1).x)) > 0.5)
+			isPossible = false;
+
+		if (isPossible) {
+			if (eyes.get(0).x < eyes.get(1).y) {
+				leftEye = eyes.get(0);
+				rightEye = eyes.get(1);
+			} else {
+				leftEye = eyes.get(1);
+				rightEye = eyes.get(0);
+			}
+		} else {
+			leftEye = null;
+			rightEye = null;
+		}
+	}
+
 	public final class EyePoint {
 		public float x;
 		public float y;
@@ -218,11 +263,15 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 		public void setGroup(Segmentation.Group group) {
 			this.group = group;
 			x = (float) group.posSumX / group.sum;
-			y = (float) group.posSumX / group.sum;
+			y = (float) group.posSumY / group.sum;
 		}
 
 		public double getDistance(EyePoint other) {
 			return Math.sqrt(Math.pow((double) other.x - x, 2) + Math.pow((double) other.y - y, 2));
+		}
+
+		public void drawBounds(Graphics2D g2) {
+			g2.draw(new Rectangle2D.Double(group.left - .5, group.top - .5, group.right - group.left, group.bottom - group.top));
 		}
 	}
 }
