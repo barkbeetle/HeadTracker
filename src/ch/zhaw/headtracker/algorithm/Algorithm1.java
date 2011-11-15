@@ -9,9 +9,8 @@ import ch.zhaw.headtracker.image.ImageView;
 import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 import static ch.zhaw.headtracker.algorithm.ControlPanel.*;
 
@@ -71,20 +70,16 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 		final Set<Segmentation.Group> groups = Segmentation.findGroups(bwImage);
 
 		for (Segmentation.Group i : groups) {
-			boolean match = true;
-
 			if (i.sum < 30 || i.sum > 200)
-				match = false;
+				continue;
 			if ((float) (i.right - i.left) / (i.bottom - i.top) < 1)
-				match = false;
+				continue;
 			if ((float) (i.right - i.left) / (i.bottom - i.top) > 3)
-				match = false;
+				continue;
 
-			if (match) {
-				EyePoint eyePoint = new EyePoint();
-				eyePoint.setGroup(i);
-				addEyePoint(eyePoint);
-			}
+			EyePoint eyePoint = new EyePoint();
+			eyePoint.setGroup(i);
+			addEyePoint(eyePoint);
 		}
 		cleanUpEyePoints();
 		calculateEyePoints();
@@ -189,20 +184,16 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 	}
 
 	private void addEyePoint(EyePoint eyePoint) {
-		//System.out.println("add");
-		boolean similar = false;
 		for (EyePoint p : eyePoints) {
 			if (eyePoint.getDistance(p) < 20) {
 				p.setGroup(eyePoint.group);
 				p.timestamp = frame;
 				if (p.hitRatio < 1000)
 					p.hitRatio++;
-				similar = true;
-				break;
+				return;
 			}
 		}
-		if (!similar)
-			eyePoints.add(eyePoint);
+		eyePoints.add(eyePoint);
 	}
 
 	private void cleanUpEyePoints() {
@@ -212,9 +203,7 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 				toBeRemoved.add(eyePoint);
 			}
 		}
-		for (EyePoint eyePoint : toBeRemoved) {
-			eyePoints.remove(eyePoint);
-		}
+		eyePoints.removeAll(toBeRemoved);
 	}
 
 	private void calculateEyePoints() {
@@ -224,27 +213,35 @@ public final class Algorithm1 implements AlgorithmRunner.Algorithm {
 				eyes.add(eyePoint);
 			}
 		}
-		boolean isPossible = true;
-		if (eyes.size() != 2)
-			isPossible = false;
-		else if (eyes.get(0).getDistance(eyes.get(1)) > 200)
-			isPossible = false;
-		else if (Math.abs(eyes.get(0).x - eyes.get(1).x) < 20)
-			isPossible = false;
-		else if (Math.abs((eyes.get(0).y - eyes.get(1).y) / (eyes.get(0).x - eyes.get(1).x)) > 0.5)
-			isPossible = false;
 
-		if (isPossible) {
-			if (eyes.get(0).x < eyes.get(1).y) {
-				leftEye = eyes.get(0);
-				rightEye = eyes.get(1);
-			} else {
-				leftEye = eyes.get(1);
-				rightEye = eyes.get(0);
+		Collections.sort(eyes, new Comparator<EyePoint>() {
+			@Override
+			public int compare(EyePoint eyePoint, EyePoint eyePoint1) {
+				if (eyePoint.y > eyePoint1.y)
+					return 1;
+				else
+					return -1;
 			}
+		});
+
+		leftEye = null;
+		rightEye = null;
+
+		if (eyes.size() < 2)
+			return;
+		else if (eyes.get(0).getDistance(eyes.get(1)) > 200)
+			return;
+		else if (Math.abs(eyes.get(0).x - eyes.get(1).x) < 20)
+			return;
+		else if (Math.abs((eyes.get(0).y - eyes.get(1).y) / (eyes.get(0).x - eyes.get(1).x)) > 0.5)
+			return;
+
+		if (eyes.get(0).x < eyes.get(1).x) {
+			leftEye = eyes.get(0);
+			rightEye = eyes.get(1);
 		} else {
-			leftEye = null;
-			rightEye = null;
+			leftEye = eyes.get(1);
+			rightEye = eyes.get(0);
 		}
 	}
 
